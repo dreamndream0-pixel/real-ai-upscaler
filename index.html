@@ -54,7 +54,7 @@
     .processing{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:rgba(248,250,252,.56);backdrop-filter:blur(10px);z-index:9}.processing.active{display:flex}.processing-card{width:min(390px,84%);border-radius:24px;padding:18px;background:rgba(255,255,255,.92);border:1px solid rgba(255,255,255,.95);box-shadow:0 30px 60px rgba(15,23,42,.14)}.spin{width:38px;height:38px;border-radius:50%;border:2px solid rgba(17,24,39,.1);border-top-color:var(--brand2);animation:spin 1s linear infinite}.processing-head{display:flex;align-items:center;gap:12px}.processing-title{font-weight:800}.processing-sub{font-size:12px;color:var(--muted);margin-top:4px}.bar{height:9px;border-radius:999px;background:#eef2f7;margin-top:16px;overflow:hidden}.bar > span{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--brand2),var(--brand));border-radius:inherit;transition:width .24s ease}.bar-meta{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-top:10px}
     .palette-wrap{padding:14px 18px;border-top:1px solid var(--line);background:#fff}.palette-label{font-size:12px;color:var(--muted);margin-bottom:10px}.gradient-chip{position:relative;height:44px;border-radius:999px;cursor:pointer;border:1px solid var(--line);box-shadow:inset 0 1px 2px rgba(15,23,42,.05),0 8px 18px rgba(15,23,42,.05);overflow:hidden;transition:.18s}.gradient-chip:hover{transform:translateY(-1px)}.gradient-chip::after{content:"";position:absolute;top:50%;left:var(--pick-position,50%);transform:translate(-50%,-50%);width:18px;height:18px;border-radius:999px;border:2px solid rgba(255,255,255,.95);box-shadow:0 0 0 1px rgba(15,23,42,.14),0 4px 10px rgba(15,23,42,.12);background:var(--picked-color,#ffffff);pointer-events:none}.palette-note{font-size:11px;color:var(--soft);margin-top:8px;line-height:1.6}
     .download-card{padding:14px 18px;margin-top:18px}.download-wrap{display:flex;justify-content:flex-end}.download-dropdown{width:min(250px,100%)}.status,.error{margin-top:12px;padding:12px 14px;border-radius:16px;border:1px solid var(--line);font-size:13px;display:none;box-shadow:var(--shadow-soft)}.status{background:#eff6ff;color:#1d4ed8}.error{background:#fef2f2;color:#b91c1c}
-    .lightbox{position:fixed;inset:0;background:rgba(17,24,39,.76);backdrop-filter:blur(14px);display:none;align-items:center;justify-content:center;padding:24px;z-index:40;overflow:hidden}.lightbox.active{display:flex}.lightbox-stage{position:relative;width:100%;height:100%;overflow:hidden;background:linear-gradient(135deg,#ffffff,#f8fafc),radial-gradient(circle at 20% 25%,rgba(96,165,250,.18),transparent 30%),radial-gradient(circle at 80% 75%,rgba(244,114,182,.14),transparent 34%);border-radius:24px}.lightbox-viewport{position:absolute;inset:0;overflow:hidden;cursor:grab}.lightbox-viewport.dragging{cursor:grabbing}.lightbox-layer{position:absolute;left:50%;top:50%;transform-origin:center center;will-change:transform;user-select:none;max-width:none;max-height:none;pointer-events:none}.lightbox-after-wrap{position:absolute;inset:0;overflow:hidden;clip-path:inset(0 50% 0 0);pointer-events:none}.lightbox-divider{position:absolute;top:24px;bottom:24px;left:50%;width:2px;background:rgba(255,255,255,.96);box-shadow:0 0 16px rgba(255,255,255,.9);z-index:43}.lightbox-handle{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:46px;height:46px;border-radius:999px;background:rgba(255,255,255,.92);border:1px solid rgba(255,255,255,.95);color:#374151;display:flex;align-items:center;justify-content:center;box-shadow:0 10px 20px rgba(15,23,42,.2);cursor:ew-resize;z-index:44}.lightbox-label{position:absolute;top:22px;border-radius:999px;padding:8px 12px;font-size:12px;z-index:44;box-shadow:var(--shadow-soft);backdrop-filter:blur(8px)}.lightbox-label.before{left:22px;background:rgba(255,255,255,.9);color:#374151}.lightbox-label.after{right:78px;background:rgba(17,24,39,.78);color:#fff}.close{position:absolute;top:18px;right:18px;width:44px;height:44px;border-radius:999px;border:1px solid var(--line);background:#fff;color:#111827;font-size:28px;line-height:1;cursor:pointer;box-shadow:var(--shadow-soft);z-index:45}.zoom-hint{position:absolute;left:50%;bottom:18px;transform:translateX(-50%);border-radius:999px;background:rgba(255,255,255,.88);padding:8px 12px;font-size:12px;color:#374151;z-index:45;box-shadow:var(--shadow-soft)}
+    .lightbox{position:fixed;inset:0;background:rgba(17,24,39,.76);backdrop-filter:blur(14px);display:none;align-items:center;justify-content:center;padding:24px;z-index:40;overflow:hidden}.lightbox.active{display:flex}.lightbox-stage{position:relative;width:100%;height:100%;display:flex;align-items:center;justify-content:center;overflow:hidden;background:linear-gradient(135deg,#ffffff,#f8fafc),radial-gradient(circle at 20% 25%,rgba(96,165,250,.18),transparent 30%),radial-gradient(circle at 80% 75%,rgba(244,114,182,.14),transparent 34%);border-radius:24px}.lightbox img{max-width:none;max-height:none;transform-origin:center center;will-change:transform;cursor:grab;user-select:none}.lightbox img.dragging{cursor:grabbing}.close{position:absolute;top:18px;right:18px;width:44px;height:44px;border-radius:999px;border:1px solid var(--line);background:#fff;color:#111827;font-size:28px;line-height:1;cursor:pointer;box-shadow:var(--shadow-soft);z-index:42}.zoom-hint{position:absolute;left:50%;bottom:18px;transform:translateX(-50%);border-radius:999px;background:rgba(255,255,255,.88);padding:8px 12px;font-size:12px;color:#374151;z-index:42;box-shadow:var(--shadow-soft)}
     @keyframes spin{to{transform:rotate(360deg)}}@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}@media(max-width:1080px){.layout{grid-template-columns:1fr}.panel{position:static}}@media(max-width:720px){.shell{padding:14px 12px 28px}.top-pills{display:none}.preview-top{flex-direction:column}.head-actions{width:100%;justify-content:flex-start}.mode-grid{grid-template-columns:1fr}.stats{gap:14px 18px}.compare-wrap{inset:12px}}
   </style>
 </head>
@@ -196,18 +196,9 @@
   <div class="lightbox" id="lightbox">
     <button class="close" id="lightboxClose">×</button>
     <div class="lightbox-stage" id="lightboxStage">
-      <div class="lightbox-viewport" id="lightboxViewport">
-        <img class="lightbox-layer" id="lightboxBefore" alt="original enlarged" draggable="false" />
-        <div class="lightbox-after-wrap" id="lightboxAfterWrap">
-          <img class="lightbox-layer" id="lightboxAfter" alt="enhanced enlarged" draggable="false" />
-        </div>
-      </div>
-      <div class="lightbox-divider" id="lightboxDivider"></div>
-      <div class="lightbox-handle" id="lightboxHandle">↔</div>
-      <div class="lightbox-label before">原圖</div>
-      <div class="lightbox-label after">AI 增強</div>
+      <img id="lightboxImage" alt="preview enlarged" draggable="false" />
     </div>
-    <div class="zoom-hint">滾輪縮放・拖曳移動畫面・拖曳中線比對・雙擊重置</div>
+    <div class="zoom-hint">滾輪縮放・拖曳移動畫面・雙擊重置</div>
   </div>
 
   <script>
@@ -227,7 +218,7 @@
       dragging:false,
       backdropColor:'#ffffff',
       backdropTint:'linear-gradient(90deg,rgba(255,106,136,.24),rgba(255,209,102,.18),rgba(0,198,255,.18),rgba(196,113,237,.24))',
-      lightbox:{scale:1,x:0,y:0,split:50,dragging:false,splitDragging:false,lastX:0,lastY:0}
+      lightbox:{scale:1,x:0,y:0,dragging:false,lastX:0,lastY:0}
     };
 
     const pipelines = {
@@ -254,6 +245,12 @@
         desc:'CGI → SwinIR → 平面邊緣優化輸出',
         badge:'Illustration Clean / 插畫乾淨',
         steps:['前處理','CGI','SwinIR','邊緣優化']
+      },
+      illustration_pro:{
+        title:'Illustration Pro',
+        desc:'CGI 插圖基底 → Line / Edge Clean → SwinIR 低雜訊細節補強',
+        badge:'Illustration Pro / 貼圖卡通專用',
+        steps:['前處理','CGI 插圖基底','Line / Edge Clean','SwinIR 低雜訊','輸出']
       }
     };
 
@@ -261,7 +258,8 @@
       {value:'photogrid', title:'Photogrid Pro（推薦）', desc:pipelines.photogrid.desc},
       {value:'restore', title:'Restore Max', desc:pipelines.restore.desc},
       {value:'text', title:'Text Sharp', desc:pipelines.text.desc},
-      {value:'illustration', title:'Illustration Clean', desc:pipelines.illustration.desc}
+      {value:'illustration', title:'Illustration Clean', desc:pipelines.illustration.desc},
+      {value:'illustration_pro', title:'Illustration Pro（貼圖卡通專用）', desc:pipelines.illustration_pro.desc}
     ];
 
     const scaleOptions = [
@@ -409,7 +407,7 @@
       if(!state.resultUrl) return;
       state.split=Math.max(0,Math.min(100,p));
       divider.style.display='block'; handle.classList.remove('hidden'); $('rightLabel').style.display='block'; $('modeBadge').style.display='block';
-      divider.style.left=state.split+'%'; handle.style.left=state.split+'%'; afterPane.style.clipPath=`inset(0 ${100-state.split}% 0 0)`;
+      divider.style.left=state.split+'%'; handle.style.left=state.split+'%'; afterPane.style.clipPath=`inset(0 0 0 ${state.split}%)`;
     }
 
     function attachSplitDrag(){
@@ -503,12 +501,17 @@
 
     async function downloadResult(format){
       if(!state.resultUrl) return showError('請先完成 AI 增強');
+
       try{
         showStatus('正在準備下載檔案…');
+
         const res=await fetch('/api/download',{
           method:'POST',
           headers:{'Content-Type':'application/json'},
-          body:JSON.stringify({url:state.resultUrl,format})
+          body:JSON.stringify({
+            url:state.resultUrl,
+            format:format
+          })
         });
 
         if(!res.ok){
@@ -517,100 +520,49 @@
         }
 
         const blob=await res.blob();
-        if(!blob || blob.size === 0) throw new Error('下載檔案為空');
+        if(!blob || blob.size===0) throw new Error('下載檔案為空');
 
         const ext = format === 'jpg' ? 'jpg' : format;
+        const objectUrl = URL.createObjectURL(blob);
+
         const a=document.createElement('a');
-        a.href=URL.createObjectURL(blob);
+        a.href=objectUrl;
         a.download=`urban-upscale-${Date.now()}.${ext}`;
+        a.style.display='none';
         document.body.appendChild(a);
         a.click();
         a.remove();
-        setTimeout(()=>URL.revokeObjectURL(a.href),1200);
+
+        setTimeout(()=>URL.revokeObjectURL(objectUrl),1500);
         showStatus('下載已開始');
       }catch(err){
-        console.warn('download conversion failed, fallback direct download', err);
-        try{
-          const a=document.createElement('a');
-          a.href=state.resultUrl;
-          a.target='_blank';
-          a.download=`urban-upscale-${Date.now()}.png`;
-          document.body.appendChild(a);
-          a.click();
-          a.remove();
-          showError('轉檔失敗，已改用原始輸出圖下載。若需要指定格式，請稍後再試。');
-        }catch(e){
-          showError(err.message || '下載失敗');
-        }
+        showError(err.message || '下載失敗，請稍後再試');
       }
     }
 
     function resetLightbox(){
-      state.lightbox.scale=1;
-      state.lightbox.x=0;
-      state.lightbox.y=0;
-      state.lightbox.split=50;
-      updateLightboxTransform();
-      updateLightboxSplit();
+      state.lightbox.scale=1; state.lightbox.x=0; state.lightbox.y=0; updateLightboxTransform();
     }
-
     function updateLightboxTransform(){
-      const transform=`translate(calc(-50% + ${state.lightbox.x}px), calc(-50% + ${state.lightbox.y}px)) scale(${state.lightbox.scale})`;
-      $('lightboxBefore').style.transform=transform;
-      $('lightboxAfter').style.transform=transform;
+      $('lightboxImage').style.transform=`translate(${state.lightbox.x}px, ${state.lightbox.y}px) scale(${state.lightbox.scale})`;
     }
-
-    function updateLightboxSplit(){
-      const split = Math.max(0, Math.min(100, state.lightbox.split || 50));
-      $('lightboxAfterWrap').style.clipPath=`inset(0 ${100-split}% 0 0)`;
-      $('lightboxDivider').style.left=split+'%';
-      $('lightboxHandle').style.left=split+'%';
-    }
-
-    function fitLightboxImages(){
-      const before=$('lightboxBefore');
-      const after=$('lightboxAfter');
-      const stage=$('lightboxStage').getBoundingClientRect();
-      const img=state.resultImage || state.originalImage;
-      if(!img || !stage.width || !stage.height) return;
-
-      const scale=Math.min((stage.width*.86)/img.width,(stage.height*.82)/img.height,1);
-      const w=Math.max(1,img.width*scale);
-      const h=Math.max(1,img.height*scale);
-
-      before.style.width=w+'px';
-      before.style.height=h+'px';
-      after.style.width=w+'px';
-      after.style.height=h+'px';
-    }
-
-    function openLightbox(){
-      if(!state.originalDataUrl || !state.resultUrl){
-        return showError('請先完成 AI 增強，才能開啟前後滑桿比對。');
-      }
-      $('lightboxBefore').src=state.originalDataUrl;
-      $('lightboxAfter').src=state.resultUrl;
+    function openLightbox(src){
+      if(!src) return;
+      $('lightboxImage').src=src;
       $('lightbox').classList.add('active');
       document.body.style.overflow='hidden';
-      setTimeout(()=>{
-        fitLightboxImages();
-        resetLightbox();
-      },50);
+      resetLightbox();
     }
-
     function closeLightbox(){
       $('lightbox').classList.remove('active');
-      $('lightboxBefore').src='';
-      $('lightboxAfter').src='';
+      $('lightboxImage').src='';
       document.body.style.overflow='';
     }
-
     $('lightboxClose').addEventListener('click',closeLightbox);
     $('lightbox').addEventListener('click',(e)=>{if(e.target===$('lightbox'))closeLightbox()});
     document.addEventListener('keydown',(e)=>{if(e.key==='Escape')closeLightbox()});
-
-    beforeCanvas.addEventListener('click',openLightbox);
-    afterCanvas.addEventListener('click',openLightbox);
+    beforeCanvas.addEventListener('click',()=>state.originalDataUrl&&openLightbox(state.originalDataUrl));
+    afterCanvas.addEventListener('click',()=>state.resultUrl&&openLightbox(state.resultUrl));
 
     $('lightboxStage').addEventListener('wheel',(e)=>{
       e.preventDefault();
@@ -618,55 +570,20 @@
       state.lightbox.scale=Math.max(.2,Math.min(8,state.lightbox.scale*delta));
       updateLightboxTransform();
     },{passive:false});
-
-    $('lightboxViewport').addEventListener('mousedown',(e)=>{
-      if(e.target===$('lightboxHandle')) return;
-      state.lightbox.dragging=true;
-      state.lightbox.lastX=e.clientX;
-      state.lightbox.lastY=e.clientY;
-      $('lightboxViewport').classList.add('dragging');
+    $('lightboxImage').addEventListener('mousedown',(e)=>{
+      state.lightbox.dragging=true; state.lightbox.lastX=e.clientX; state.lightbox.lastY=e.clientY; $('lightboxImage').classList.add('dragging');
     });
-
-    function setLightboxSplitByX(clientX){
-      const r=$('lightboxStage').getBoundingClientRect();
-      state.lightbox.split=((clientX-r.left)/r.width)*100;
-      updateLightboxSplit();
-    }
-
-    $('lightboxHandle').addEventListener('mousedown',(e)=>{
-      e.stopPropagation();
-      state.lightbox.splitDragging=true;
-      setLightboxSplitByX(e.clientX);
-    });
-
-    $('lightboxDivider').addEventListener('mousedown',(e)=>{
-      e.stopPropagation();
-      state.lightbox.splitDragging=true;
-      setLightboxSplitByX(e.clientX);
-    });
-
     window.addEventListener('mousemove',(e)=>{
-      if(state.lightbox.splitDragging){
-        setLightboxSplitByX(e.clientX);
-        return;
-      }
       if(!state.lightbox.dragging)return;
       state.lightbox.x+=e.clientX-state.lightbox.lastX;
       state.lightbox.y+=e.clientY-state.lightbox.lastY;
-      state.lightbox.lastX=e.clientX;
-      state.lightbox.lastY=e.clientY;
+      state.lightbox.lastX=e.clientX; state.lightbox.lastY=e.clientY;
       updateLightboxTransform();
     });
-
-    window.addEventListener('mouseup',()=>{
-      state.lightbox.dragging=false;
-      state.lightbox.splitDragging=false;
-      $('lightboxViewport').classList.remove('dragging');
-    });
-
+    window.addEventListener('mouseup',()=>{state.lightbox.dragging=false; $('lightboxImage').classList.remove('dragging')});
     $('lightboxStage').addEventListener('dblclick',resetLightbox);
 
-    window.addEventListener('resize',()=>{if(state.originalImage) drawContain(beforeCanvas,state.originalImage); if(state.resultImage){drawContain(afterCanvas,state.resultImage); setSplit(state.split)} if($('lightbox').classList.contains('active')){fitLightboxImages(); updateLightboxTransform(); updateLightboxSplit();}});
+    window.addEventListener('resize',()=>{if(state.originalImage) drawContain(beforeCanvas,state.originalImage); if(state.resultImage){drawContain(afterCanvas,state.resultImage); setSplit(state.split)}});
 
     updateUI(); applyBackdrop();
   </script>
