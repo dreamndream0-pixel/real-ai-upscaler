@@ -1,117 +1,766 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dual Mode Upscaler</title>
-<style>
-body{margin:0;font-family:system-ui;background:#f5f7fb}
-.container{max-width:1200px;margin:auto;padding:20px}
-.grid{display:grid;grid-template-columns:320px 1fr;gap:20px}
-.card{background:#fff;border-radius:20px;padding:20px;box-shadow:0 10px 30px rgba(0,0,0,.08)}
-button{padding:10px;border:none;border-radius:12px;cursor:pointer}
-.mode{display:flex;gap:10px}
-.mode button{flex:1}
-.active{background:black;color:white}
-.preview{height:420px;background:#ddd;border-radius:20px;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative}
-.preview img{max-width:100%;max-height:100%}
-.split{position:absolute;top:0;bottom:0;width:2px;background:white;left:50%}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Urban Upscale AI</title>
+  <style>
+    :root{
+      --line:#e5e7eb;
+      --text:#111827;
+      --muted:#6b7280;
+      --soft:#9ca3af;
+      --brand:#4f46e5;
+      --brand2:#60a5fa;
+      --shadow:0 20px 45px rgba(15,23,42,.08);
+      --shadow-soft:0 10px 24px rgba(15,23,42,.06);
+      --bg-color:#ffffff;
+      --bg-tint:linear-gradient(90deg,rgba(255,106,136,.24),rgba(255,209,102,.18),rgba(0,198,255,.18),rgba(196,113,237,.24));
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:linear-gradient(180deg,#f8fafc 0%,#eef2f7 100%);color:var(--text)}
+    button,input,select{font:inherit}
+    .shell{max-width:1400px;margin:0 auto;padding:22px 18px 40px}
+    .topbar,.panel,.preview-card,.download-card{background:rgba(255,255,255,.92);backdrop-filter:blur(18px);border:1px solid rgba(255,255,255,.9);border-radius:28px;box-shadow:var(--shadow)}
+    .topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 18px;margin-bottom:18px}
+    .brand{display:flex;align-items:center;gap:14px}
+    .brand-mark{width:44px;height:44px;border-radius:15px;background:linear-gradient(135deg,var(--brand),var(--brand2));box-shadow:0 8px 24px rgba(79,70,229,.18)}
+    .brand-name{font-size:18px;font-weight:800;letter-spacing:-.02em}
+    .brand-sub{font-size:12px;color:var(--muted);margin-top:4px}
+    .top-pills{display:flex;gap:8px;flex-wrap:wrap}
+    .top-pills span{padding:8px 12px;border-radius:999px;border:1px solid var(--line);background:#fff;font-size:12px;color:#475569}
+    .layout{display:grid;grid-template-columns:380px minmax(0,1fr);gap:18px}
+    .panel{padding:22px;position:sticky;top:18px;height:max-content}
+    .section{margin-bottom:18px}
+    .section:last-child{margin-bottom:0}
+    .label{font-size:13px;font-weight:800;letter-spacing:.04em;color:#475569;text-transform:uppercase;margin-bottom:10px}
+    .mode-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;border:1px solid var(--line);background:#fff;border-radius:22px;padding:8px;box-shadow:var(--shadow-soft)}
+    .mode-btn{border:1px solid var(--line);background:#fff;border-radius:18px;text-align:left;padding:15px 13px;cursor:pointer;transition:.18s}
+    .mode-btn:hover{transform:translateY(-1px)}
+    .mode-btn.active{background:#eff6ff;border-color:#bfdbfe;box-shadow:inset 0 0 0 1px #bfdbfe}
+    .mode-title{font-size:14px;font-weight:800;color:#111827}
+    .mode-desc{font-size:12px;color:var(--muted);line-height:1.55;margin-top:5px}
+    .dropdown{position:relative}
+    .dropdown-trigger{width:100%;border-radius:22px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:.18s;background:linear-gradient(180deg,#fff,#fafafa);box-shadow:var(--shadow-soft);border:1px solid var(--line)}
+    .dropdown-trigger:hover{border-color:#c7d2fe;transform:translateY(-1px)}
+    .dropdown-main{min-width:0;padding-right:10px}
+    .dropdown-value{font-size:14px;font-weight:800;color:#111827}
+    .dropdown-meta{font-size:12px;color:var(--muted);margin-top:4px;line-height:1.55}
+    .dropdown-arrow{width:34px;height:34px;border-radius:12px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;background:#f9fafb;color:#4b5563}
+    .dropdown-menu{position:absolute;left:0;right:0;top:calc(100% + 10px);display:none;z-index:30;border-radius:22px;padding:8px;background:#fff;box-shadow:0 24px 50px rgba(15,23,42,.16);border:1px solid var(--line)}
+    .dropdown.open .dropdown-menu{display:block;animation:fadeUp .16s ease}
+    .dropdown-item{border-radius:18px;padding:11px 12px;cursor:pointer;transition:.18s}
+    .dropdown-item:hover{background:#f8fafc}
+    .dropdown-item.active{background:#eff6ff;box-shadow:inset 0 0 0 1px #bfdbfe}
+    .dropdown-item-title{font-size:14px;font-weight:700;color:#111827}
+    .dropdown-item-desc{font-size:12px;color:var(--muted);line-height:1.5;margin-top:4px}
+    .flow-card,.hint-card,.toggle-card{border:1px solid var(--line);background:#fff;border-radius:22px;padding:16px;box-shadow:var(--shadow-soft)}
+    .flow-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .flow-title{font-size:14px;font-weight:800}
+    .flow-desc{font-size:12px;color:var(--muted);line-height:1.6;margin-top:5px}
+    .tag{border:1px solid #bfdbfe;background:#eff6ff;color:#2563eb;border-radius:999px;padding:5px 10px;font-size:11px;white-space:nowrap}
+    .flow-pills{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:14px;font-size:11px;color:#64748b}
+    .flow-pills span{border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 10px}
+    .hint-card{font-size:12px;color:var(--muted);line-height:1.7}
+    .toggle-card{display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .toggle-title{font-size:14px;font-weight:800}
+    .toggle-desc{font-size:12px;color:var(--muted);margin-top:4px}
+    .switch{position:relative;width:56px;height:32px;flex:0 0 auto}
+    .switch input{display:none}
+    .slider{position:absolute;inset:0;border-radius:999px;background:#e5e7eb;transition:.2s}
+    .slider:after{content:"";position:absolute;left:4px;top:4px;width:24px;height:24px;border-radius:50%;background:#fff;transition:.2s;box-shadow:0 6px 14px rgba(15,23,42,.16)}
+    .switch input:checked + .slider{background:linear-gradient(90deg,var(--brand),var(--brand2))}
+    .switch input:checked + .slider:after{transform:translateX(24px)}
+    .preview-card{overflow:hidden}
+    .preview-head{padding:18px 20px 16px;border-bottom:1px solid var(--line)}
+    .preview-top{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}
+    .preview-title{font-size:22px;font-weight:800;letter-spacing:-.02em}
+    .preview-sub{font-size:13px;color:var(--muted);margin-top:8px}
+    .head-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+    .btn{border:none;border-radius:999px;padding:11px 16px;cursor:pointer;transition:.18s;background:#fff;color:#111827;border:1px solid var(--line);box-shadow:var(--shadow-soft)}
+    .btn:hover{transform:translateY(-1px)}
+    .btn.primary{background:#111827;color:#fff;font-weight:800}
+    .btn:disabled{opacity:.55;cursor:not-allowed;transform:none}
+    .info-row{margin-top:14px;border-radius:18px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;background:#fcfcfd;border:1px solid var(--line)}
+    .stats{display:flex;flex-wrap:wrap;gap:18px 26px}
+    .stat-label{font-size:11px;color:var(--soft)}
+    .stat-value{font-size:13px;font-weight:800;margin-top:4px;color:#111827}
+    .viewer{position:relative;aspect-ratio:16/9;overflow:hidden;background:linear-gradient(135deg,rgba(255,255,255,.76),rgba(255,255,255,.62)),var(--bg-color)}
+    .backdrop-layer,.tint-layer{position:absolute;inset:0;pointer-events:none}
+    .backdrop-layer{background-position:center;background-size:cover;filter:blur(40px) saturate(1.1);transform:scale(1.12);opacity:.42}
+    .tint-layer{background-image:var(--bg-tint);mix-blend-mode:multiply}
+    .compare-wrap{position:absolute;inset:16px;z-index:3;border-radius:24px;overflow:hidden;box-shadow:0 14px 38px rgba(15,23,42,.14);background:rgba(255,255,255,.16)}
+    .compare-pane{position:absolute;inset:0}
+    .compare-pane canvas{width:100%;height:100%;display:block;background:transparent}
+    .compare-pane.after{clip-path:inset(0 50% 0 0)}
+    .divider{position:absolute;top:16px;bottom:16px;left:50%;width:2px;background:rgba(255,255,255,.96);box-shadow:0 0 16px rgba(255,255,255,.9);display:none;transform:translateX(-1px);z-index:5}
+    .handle{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;align-items:center;justify-content:center;z-index:6;width:44px;height:44px;border-radius:999px;background:rgba(255,255,255,.92);border:1px solid rgba(255,255,255,.95);color:#374151;box-shadow:0 10px 20px rgba(15,23,42,.15);cursor:ew-resize}
+    .handle.hidden{display:none}
+    .viewer-label{position:absolute;top:16px;padding:8px 12px;border-radius:999px;font-size:12px;backdrop-filter:blur(8px);z-index:7;box-shadow:var(--shadow-soft)}
+    .viewer-label.left{left:16px;background:rgba(255,255,255,.88);color:#374151}
+    .viewer-label.right{right:16px;background:rgba(17,24,39,.78);color:#fff;display:none}
+    .mode-badge{position:absolute;right:16px;top:54px;border-radius:999px;background:#eff6ff;color:#2563eb;border:1px solid #bfdbfe;padding:7px 12px;font-size:11px;font-weight:700;z-index:7;display:none;box-shadow:var(--shadow-soft)}
+    .upload-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.2s;z-index:8}
+    .upload-overlay.hidden{opacity:0;pointer-events:none}
+    .overlay-card{min-width:min(460px,78%);max-width:78%;border-radius:28px;padding:34px 26px;text-align:center;background:rgba(255,255,255,.72);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.95);box-shadow:0 22px 50px rgba(15,23,42,.12)}
+    .overlay-icon{width:66px;height:66px;border-radius:24px;background:rgba(255,255,255,.85);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:30px;box-shadow:var(--shadow-soft)}
+    .overlay-title{font-size:18px;font-weight:800;color:#111827}
+    .overlay-desc{font-size:13px;color:var(--muted);margin-top:10px}
+    .processing{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:rgba(248,250,252,.56);backdrop-filter:blur(10px);z-index:9}
+    .processing.active{display:flex}
+    .processing-card{width:min(360px,84%);border-radius:24px;padding:18px;background:rgba(255,255,255,.92);border:1px solid rgba(255,255,255,.95);box-shadow:0 30px 60px rgba(15,23,42,.14)}
+    .spin{width:38px;height:38px;border-radius:50%;border:2px solid rgba(17,24,39,.1);border-top-color:var(--brand2);animation:spin 1s linear infinite}
+    .processing-head{display:flex;align-items:center;gap:12px}
+    .processing-title{font-weight:800}
+    .processing-sub{font-size:12px;color:var(--muted);margin-top:4px}
+    .bar{height:9px;border-radius:999px;background:#eef2f7;margin-top:16px;overflow:hidden}
+    .bar > span{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--brand2),var(--brand));border-radius:inherit;transition:width .24s ease}
+    .bar-meta{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-top:10px}
+    .palette-wrap{padding:14px 18px;border-top:1px solid var(--line);background:#fff}
+    .palette-label{font-size:12px;color:var(--muted);margin-bottom:10px}
+    .gradient-chip{position:relative;height:44px;border-radius:999px;cursor:pointer;border:1px solid var(--line);box-shadow:inset 0 1px 2px rgba(15,23,42,.05),0 8px 18px rgba(15,23,42,.05);overflow:hidden;transition:.18s}
+    .gradient-chip:hover{transform:translateY(-1px)}
+    .gradient-chip::after{content:"";position:absolute;top:50%;left:var(--pick-position,50%);transform:translate(-50%,-50%);width:18px;height:18px;border-radius:999px;border:2px solid rgba(255,255,255,.95);box-shadow:0 0 0 1px rgba(15,23,42,.14),0 4px 10px rgba(15,23,42,.12);background:var(--picked-color,#ffffff);pointer-events:none}
+    .palette-note{font-size:11px;color:var(--soft);margin-top:8px;line-height:1.6}
+    .download-card{padding:14px 18px;margin-top:18px}
+    .download-wrap{display:flex;justify-content:flex-end}
+    .download-dropdown{width:min(250px,100%)}
+    .status,.error{margin-top:12px;padding:12px 14px;border-radius:16px;border:1px solid var(--line);font-size:13px;display:none;box-shadow:var(--shadow-soft)}
+    .status{background:#eff6ff;color:#1d4ed8}
+    .error{background:#fef2f2;color:#b91c1c}
+    .lightbox{position:fixed;inset:0;background:rgba(255,255,255,.72);backdrop-filter:blur(12px);display:none;align-items:center;justify-content:center;padding:24px;z-index:40}
+    .lightbox.active{display:flex}
+    .lightbox img{max-width:min(92vw,1600px);max-height:88vh;border-radius:18px;border:1px solid rgba(255,255,255,.95);box-shadow:0 24px 60px rgba(15,23,42,.18);background:#fff}
+    .close{position:absolute;top:18px;right:18px;width:44px;height:44px;border-radius:999px;border:1px solid var(--line);background:#fff;color:#111827;font-size:28px;line-height:1;cursor:pointer;box-shadow:var(--shadow-soft)}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+    @media(max-width:1080px){.layout{grid-template-columns:1fr}.panel{position:static}}
+    @media(max-width:720px){.shell{padding:14px 12px 28px}.top-pills{display:none}.preview-top{flex-direction:column}.head-actions{width:100%;justify-content:flex-start}.mode-grid{grid-template-columns:1fr}.stats{gap:14px 18px}.compare-wrap{inset:12px}}
+  </style>
 </head>
 <body>
-<div class="container">
-<h2>AI 雙模式超解析</h2>
+  <div class="shell">
+    <div class="topbar">
+      <div class="brand">
+        <div class="brand-mark"></div>
+        <div>
+          <div class="brand-name">Urban Upscale AI</div>
+          <div class="brand-sub">Premium Image Upscaler Studio</div>
+        </div>
+      </div>
+      <div class="top-pills">
+        <span>Natural Pipeline</span>
+        <span>Enhance Pipeline</span>
+        <span>Original Style</span>
+      </div>
+    </div>
 
-<div class="grid">
-<div class="card">
+    <div class="layout">
+      <aside class="panel">
+        <div class="section">
+          <div class="label">處理模式</div>
+          <div class="mode-grid">
+            <button class="mode-btn active" id="naturalMode">
+              <div class="mode-title">Natural 模式</div>
+              <div class="mode-desc">偏 Photogrid 路線，穩定、自然、商業可用</div>
+            </button>
+            <button class="mode-btn" id="enhanceMode">
+              <div class="mode-title">Enhance 模式</div>
+              <div class="mode-desc">更強 AI 細節強化，適合低清或想更銳利</div>
+            </button>
+          </div>
+        </div>
 
-<div class="mode">
-<button id="natural" class="active">Natural</button>
-<button id="enhance">Enhance</button>
-</div>
+        <div class="section">
+          <div class="label">多模型流程</div>
+          <div class="dropdown" id="pipelineDropdown"></div>
+        </div>
 
-<select id="pipeline">
-<option value="natural">Natural Pipeline（穩定）</option>
-<option value="enhance">Enhance Pipeline（強化）</option>
-</select>
+        <div class="section">
+          <div class="flow-card">
+            <div class="flow-head">
+              <div>
+                <div class="flow-title">流程預覽</div>
+                <div class="flow-desc" id="flowDesc">Topaz High Fidelity → SwinIR 細節補強 → 自然輸出</div>
+              </div>
+              <div class="tag">商業級</div>
+            </div>
+            <div class="flow-pills" id="flowPills"></div>
+          </div>
+        </div>
 
-<select id="scale">
-<option>2</option>
-<option selected>4</option>
-<option>6</option>
-</select>
+        <div class="section">
+          <div class="label">放大倍率</div>
+          <div class="dropdown" id="scaleDropdown"></div>
+        </div>
 
-<input type="file" id="file">
-<button id="run">開始增強</button>
+        <div class="section">
+          <div class="hint-card">
+            Natural 主打穩定自然，適合商品、房間、風景與商業圖；Enhance 強化銳利細節，適合低清晰圖與人像。
+          </div>
+        </div>
 
-<p id="msg"></p>
+        <div class="section">
+          <div class="toggle-card">
+            <div>
+              <div class="toggle-title">臉部優化</div>
+              <div class="toggle-desc">Enhance / 人像照片建議開啟</div>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="faceEnhance" checked />
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
 
-</div>
+        <div class="status" id="statusBox"></div>
+        <div class="error" id="errorBox"></div>
+      </aside>
 
-<div class="card">
-<div class="preview">
-<img id="imgBefore">
-<img id="imgAfter" style="position:absolute;clip-path:inset(0 50% 0 0)">
-<div class="split"></div>
-</div>
-</div>
+      <main>
+        <section class="preview-card">
+          <div class="preview-head">
+            <div class="preview-top">
+              <div>
+                <div class="preview-title">Live Preview</div>
+                <div class="preview-sub">原本白色高級版風格，加入 Natural / Enhance 雙模式與 pipeline。</div>
+              </div>
+              <div class="head-actions">
+                <button class="btn" id="reuploadBtn">重新上傳</button>
+                <button class="btn primary" id="enhanceBtn" disabled>開始增強</button>
+              </div>
+            </div>
 
-</div>
-</div>
+            <div class="info-row">
+              <div class="stats">
+                <div><div class="stat-label">原始尺寸</div><div class="stat-value" id="origSize">未上傳</div></div>
+                <div><div class="stat-label">輸出尺寸</div><div class="stat-value" id="outSize">—</div></div>
+                <div><div class="stat-label">模式</div><div class="stat-value" id="modeLabel">Natural</div></div>
+                <div><div class="stat-label">Pipeline</div><div class="stat-value" id="pipelineLabel">Natural Pipeline</div></div>
+                <div><div class="stat-label">倍率</div><div class="stat-value" id="currentScale">4x</div></div>
+                <div><div class="stat-label">檔案大小</div><div class="stat-value" id="outFileSize">—</div></div>
+              </div>
+            </div>
+          </div>
 
-<script>
-let base64=""
+          <div class="viewer" id="viewer">
+            <div class="backdrop-layer" id="backdropLayer"></div>
+            <div class="tint-layer"></div>
 
-file.onchange=e=>{
- const r=new FileReader()
- r.onload=()=>{
-   base64=r.result
-   imgBefore.src=base64
- }
- r.readAsDataURL(e.target.files[0])
-}
+            <div class="compare-wrap">
+              <div class="compare-pane before"><canvas id="beforeCanvas"></canvas></div>
+              <div class="compare-pane after" id="afterPane"><canvas id="afterCanvas"></canvas></div>
+            </div>
 
-natural.onclick=()=>{
- natural.classList.add("active")
- enhance.classList.remove("active")
- pipeline.value="natural"
-}
+            <div class="divider" id="divider"></div>
+            <div class="handle hidden" id="handle">↔</div>
+            <div class="viewer-label left">原圖</div>
+            <div class="viewer-label right" id="rightLabel">AI 增強</div>
+            <div class="mode-badge" id="modeBadge">穩定自然 / 偏 Photogrid</div>
 
-enhance.onclick=()=>{
- enhance.classList.add("active")
- natural.classList.remove("active")
- pipeline.value="enhance"
-}
+            <label class="upload-overlay" id="uploadOverlay" for="fileInput">
+              <div class="overlay-card">
+                <div class="overlay-icon">🖼️</div>
+                <div class="overlay-title">點擊或拖曳圖片上傳</div>
+                <div class="overlay-desc">支援 PNG / JPG / WEBP，大圖會自動縮小避免模型爆掉</div>
+              </div>
+            </label>
 
-run.onclick=async()=>{
- msg.innerText="處理中..."
+            <div class="processing" id="processing">
+              <div class="processing-card">
+                <div class="processing-head">
+                  <div class="spin"></div>
+                  <div>
+                    <div class="processing-title">AI 正在優化圖片</div>
+                    <div class="processing-sub" id="progressLabel">Pipeline 處理中…</div>
+                  </div>
+                </div>
+                <div class="bar"><span id="progressFill"></span></div>
+                <div class="bar-meta">
+                  <span id="progressModel">Natural Pipeline</span>
+                  <span id="progressPercent">0%</span>
+                </div>
+              </div>
+            </div>
+          </div>
 
- const res=await fetch("/api/predict",{
-  method:"POST",
-  headers:{"Content-Type":"application/json"},
-  body:JSON.stringify({
-    imageBase64:base64,
-    pipeline:pipeline.value,
-    scale:scale.value
-  })
- })
+          <div class="palette-wrap">
+            <div class="palette-label">背景漸層</div>
+            <div class="gradient-chip" id="mainGradientChip" style="background:linear-gradient(90deg,#ff6a88 0%,#ffb199 14%,#ffd166 28%,#9be15d 42%,#00c6ff 58%,#7f7fd5 74%,#c471ed 88%,#f64f59 100%)"></div>
+            <div class="palette-note">直接點選漸層上的位置即可改變背景主色。</div>
+          </div>
+        </section>
 
- const data=await res.json()
+        <section class="download-card">
+          <div class="download-wrap">
+            <div class="download-dropdown">
+              <div class="dropdown" id="downloadDropdown"></div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
 
- let done=false
- while(!done){
-  await new Promise(r=>setTimeout(r,2000))
-  const poll=await fetch("/api/poll?id="+data.id)
-  const result=await poll.json()
+  <input type="file" id="fileInput" accept="image/png,image/jpeg,image/webp" hidden />
 
-  if(result.status==="succeeded"){
-    const url=Array.isArray(result.output)?result.output[0]:result.output
-    imgAfter.src=url
-    msg.innerText="完成"
-    done=true
-  }
- }
-}
-</script>
+  <div class="lightbox" id="lightbox">
+    <button class="close" id="lightboxClose">×</button>
+    <img id="lightboxImage" alt="preview enlarged" />
+  </div>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+
+    const state = {
+      mode:'natural',
+      pipeline:'natural',
+      scale:4,
+      faceEnhance:true,
+      originalDataUrl:'',
+      originalImage:null,
+      resultUrl:'',
+      resultImage:null,
+      split:50,
+      dragging:false,
+      backdropColor:'#ffffff',
+      backdropTint:'linear-gradient(90deg,rgba(255,106,136,.24),rgba(255,209,102,.18),rgba(0,198,255,.18),rgba(196,113,237,.24))'
+    };
+
+    const pipelines = {
+      natural:{
+        title:'Natural Pipeline',
+        desc:'Topaz High Fidelity → SwinIR 細節補強 → 自然輸出',
+        badge:'穩定自然 / 偏 Photogrid',
+        steps:['前處理','Topaz High Fidelity','SwinIR 細節補強','自然輸出']
+      },
+      enhance:{
+        title:'Enhance Pipeline',
+        desc:'Low Resolution V2 → Face Restore → SwinIR → 高銳輸出',
+        badge:'強化細節 / 偏 Remini',
+        steps:['前處理','Low Resolution V2','Face Restore','SwinIR','高銳輸出']
+      },
+      text:{
+        title:'Text Pipeline',
+        desc:'Text Refine → 銳邊保留 → 文字清晰輸出',
+        badge:'文字清晰 / 招牌文件',
+        steps:['前處理','Text Refine','銳邊保留','輸出']
+      },
+      illustration:{
+        title:'Illustration Pipeline',
+        desc:'CGI → 平面邊緣優化 → 插畫輸出',
+        badge:'插畫海報 / 邊緣乾淨',
+        steps:['前處理','CGI','邊緣優化','輸出']
+      }
+    };
+
+    const pipelineOptions = [
+      {value:'natural', title:'Natural Pipeline（推薦）', desc:pipelines.natural.desc},
+      {value:'enhance', title:'Enhance Pipeline', desc:pipelines.enhance.desc},
+      {value:'text', title:'Text Pipeline', desc:pipelines.text.desc},
+      {value:'illustration', title:'Illustration Pipeline', desc:pipelines.illustration.desc}
+    ];
+
+    const scaleOptions = [
+      {value:'2', title:'2x', desc:'速度較快'},
+      {value:'4', title:'4x', desc:'平衡品質與速度'},
+      {value:'6', title:'6x', desc:'更高細節'},
+      {value:'8', title:'8x', desc:'最大倍率；大圖建議改 2x 或 4x'}
+    ];
+
+    const downloadOptions = [
+      {value:'png', title:'下載 PNG', desc:'高品質 / 保留細節'},
+      {value:'jpg', title:'下載 JPG', desc:'檔案較小 / 分享用'},
+      {value:'webp', title:'下載 WEBP', desc:'高壓縮 / 現代格式'}
+    ];
+
+    function createDropdown(root,{value,options,onSelect}){
+      const render=()=>{
+        const now=options.find(o=>String(o.value)===String(value()));
+        root.className='dropdown';
+        root.innerHTML=`
+          <button class="dropdown-trigger" type="button">
+            <div class="dropdown-main">
+              <div class="dropdown-value">${now?.title || ''}</div>
+              ${now?.desc ? `<div class="dropdown-meta">${now.desc}</div>` : ''}
+            </div>
+            <div class="dropdown-arrow">▾</div>
+          </button>
+          <div class="dropdown-menu">
+            ${options.map(o=>`
+              <div class="dropdown-item ${String(o.value)===String(value())?'active':''}" data-value="${o.value}">
+                <div class="dropdown-item-title">${o.title}</div>
+                ${o.desc ? `<div class="dropdown-item-desc">${o.desc}</div>` : ''}
+              </div>
+            `).join('')}
+          </div>`;
+        root.querySelector('.dropdown-trigger').addEventListener('click',(e)=>{
+          e.stopPropagation();
+          document.querySelectorAll('.dropdown.open').forEach(d=>{if(d!==root)d.classList.remove('open')});
+          root.classList.toggle('open');
+        });
+        root.querySelectorAll('.dropdown-item').forEach(item=>{
+          item.addEventListener('click',()=>{
+            root.classList.remove('open');
+            onSelect(item.dataset.value);
+            render();
+          });
+        });
+      };
+      render();
+      return {render};
+    }
+
+    const pipelineDD=createDropdown($('pipelineDropdown'),{
+      value:()=>state.pipeline,
+      options:pipelineOptions,
+      onSelect:(v)=>{
+        state.pipeline=v;
+        state.mode=v==='enhance'?'enhance':'natural';
+        updateUI();
+      }
+    });
+
+    const scaleDD=createDropdown($('scaleDropdown'),{
+      value:()=>state.scale,
+      options:scaleOptions,
+      onSelect:(v)=>{
+        state.scale=Number(v);
+        $('currentScale').textContent=`${state.scale}x`;
+        if(state.originalImage) updateEstimate();
+      }
+    });
+
+    const downloadDD=createDropdown($('downloadDropdown'),{
+      value:()=> 'download',
+      options:downloadOptions,
+      onSelect:(v)=>downloadResult(v)
+    });
+
+    document.addEventListener('click',()=>document.querySelectorAll('.dropdown.open').forEach(d=>d.classList.remove('open')));
+
+    function updateUI(){
+      $('naturalMode').classList.toggle('active',state.mode==='natural');
+      $('enhanceMode').classList.toggle('active',state.mode==='enhance');
+      const p=pipelines[state.pipeline];
+      $('flowDesc').textContent=p.desc;
+      $('flowPills').innerHTML=p.steps.map((s,i)=>`<span>${s}</span>${i<p.steps.length-1?'→':''}`).join(' ');
+      $('modeLabel').textContent=state.mode==='natural'?'Natural':'Enhance';
+      $('pipelineLabel').textContent=p.title;
+      $('progressModel').textContent=p.title;
+      $('modeBadge').textContent=p.badge;
+      $('modeBadge').style.display=state.resultUrl?'block':'none';
+    }
+
+    $('naturalMode').addEventListener('click',()=>{
+      state.mode='natural';
+      state.pipeline='natural';
+      pipelineDD.render();
+      updateUI();
+    });
+
+    $('enhanceMode').addEventListener('click',()=>{
+      state.mode='enhance';
+      state.pipeline='enhance';
+      pipelineDD.render();
+      updateUI();
+    });
+
+    $('faceEnhance').addEventListener('change',(e)=>state.faceEnhance=e.target.checked);
+
+    const viewer=$('viewer');
+    const compareWrap=document.querySelector('.compare-wrap');
+    const beforeCanvas=$('beforeCanvas');
+    const afterCanvas=$('afterCanvas');
+    const afterPane=$('afterPane');
+    const divider=$('divider');
+    const handle=$('handle');
+    const uploadOverlay=$('uploadOverlay');
+
+    function showStatus(t){$('statusBox').textContent=t;$('statusBox').style.display='block'}
+    function showError(t){$('errorBox').textContent=t;$('errorBox').style.display='block'}
+    function hideMessages(){$('statusBox').style.display='none';$('errorBox').style.display='none'}
+
+    function setProgress(p,t){
+      $('processing').classList.add('active');
+      $('progressFill').style.width=p+'%';
+      $('progressPercent').textContent=p+'%';
+      $('progressLabel').textContent=t;
+    }
+    function hideProgress(){
+      $('processing').classList.remove('active');
+      $('progressFill').style.width='0%';
+      $('progressPercent').textContent='0%';
+    }
+
+    function applyBackdrop(){
+      viewer.style.setProperty('--bg-color',state.backdropColor);
+      viewer.style.setProperty('--bg-tint',state.backdropTint);
+    }
+
+    function hexToRgba(hex,a){
+      const n=parseInt(hex.replace('#',''),16);
+      return `rgba(${(n>>16)&255},${(n>>8)&255},${n&255},${a})`;
+    }
+
+    $('mainGradientChip').addEventListener('click',(e)=>{
+      const rect=e.currentTarget.getBoundingClientRect();
+      const t=Math.max(0,Math.min(1,(e.clientX-rect.left)/rect.width));
+      const c=document.createElement('canvas');
+      c.width=400;c.height=2;
+      const ctx=c.getContext('2d');
+      const g=ctx.createLinearGradient(0,0,400,0);
+      [['#ff6a88',0],['#ffb199',.14],['#ffd166',.28],['#9be15d',.42],['#00c6ff',.58],['#7f7fd5',.74],['#c471ed',.88],['#f64f59',1]].forEach(([col,pos])=>g.addColorStop(pos,col));
+      ctx.fillStyle=g;ctx.fillRect(0,0,400,2);
+      const px=ctx.getImageData(Math.round(t*399),0,1,1).data;
+      const hex='#'+[px[0],px[1],px[2]].map(v=>v.toString(16).padStart(2,'0')).join('');
+      e.currentTarget.style.setProperty('--pick-position',`${t*100}%`);
+      e.currentTarget.style.setProperty('--picked-color',hex);
+      state.backdropColor=hex;
+      state.backdropTint=`linear-gradient(90deg,${hexToRgba(hex,.32)},rgba(255,255,255,.12),${hexToRgba(hex,.18)})`;
+      applyBackdrop();
+      showStatus(`已套用背景主色：${hex}`);
+    });
+
+    function setupCanvas(canvas){
+      const b=compareWrap.getBoundingClientRect();
+      const dpr=window.devicePixelRatio||1;
+      canvas.width=Math.max(1,Math.floor(b.width*dpr));
+      canvas.height=Math.max(1,Math.floor(b.height*dpr));
+      canvas.style.width=b.width+'px';
+      canvas.style.height=b.height+'px';
+      const ctx=canvas.getContext('2d');
+      ctx.setTransform(dpr,0,0,dpr,0,0);
+      ctx.clearRect(0,0,b.width,b.height);
+      return {ctx,w:b.width,h:b.height};
+    }
+
+    function drawContain(canvas,img){
+      const {ctx,w,h}=setupCanvas(canvas);
+      const scale=Math.min(w/img.width,h/img.height);
+      const iw=img.width*scale;
+      const ih=img.height*scale;
+      const x=(w-iw)/2;
+      const y=(h-ih)/2;
+      ctx.drawImage(img,x,y,iw,ih);
+    }
+
+    function setSplit(p=50){
+      if(!state.resultUrl) return;
+      state.split=Math.max(0,Math.min(100,p));
+      divider.style.display='block';
+      handle.classList.remove('hidden');
+      $('rightLabel').style.display='block';
+      $('modeBadge').style.display='block';
+      divider.style.left=state.split+'%';
+      handle.style.left=state.split+'%';
+      afterPane.style.clipPath=`inset(0 ${100-state.split}% 0 0)`;
+    }
+
+    function attachSplitDrag(){
+      const setFromX=(x)=>{
+        const r=viewer.getBoundingClientRect();
+        setSplit((x-r.left)/r.width*100);
+      };
+      const down=(e)=>{
+        if(!state.resultUrl) return;
+        state.dragging=true;
+        setFromX(e.clientX ?? e.touches?.[0]?.clientX);
+      };
+      const move=(e)=>{
+        if(!state.dragging) return;
+        setFromX(e.clientX ?? e.touches?.[0]?.clientX);
+      };
+      const up=()=>state.dragging=false;
+      handle.addEventListener('mousedown',down);
+      divider.addEventListener('mousedown',down);
+      viewer.addEventListener('touchstart',down,{passive:true});
+      window.addEventListener('mousemove',move);
+      window.addEventListener('touchmove',move,{passive:true});
+      window.addEventListener('mouseup',up);
+      window.addEventListener('touchend',up);
+    }
+    attachSplitDrag();
+
+    async function downscaleLargeImage(file,maxLong=1800,maxPixels=1800000){
+      const data=await new Promise((resolve,reject)=>{
+        const r=new FileReader();
+        r.onload=()=>resolve(r.result);
+        r.onerror=reject;
+        r.readAsDataURL(file);
+      });
+      const img=new Image();
+      await new Promise((resolve,reject)=>{
+        img.onload=resolve;img.onerror=reject;img.src=data;
+      });
+      const pixels=img.width*img.height;
+      const long=Math.max(img.width,img.height);
+      if(long<=maxLong && pixels<=maxPixels) return {data,img,resized:false};
+      const ratio=Math.min(maxLong/long,Math.sqrt(maxPixels/pixels),1);
+      const w=Math.max(1,Math.round(img.width*ratio));
+      const h=Math.max(1,Math.round(img.height*ratio));
+      const c=document.createElement('canvas');
+      c.width=w;c.height=h;
+      c.getContext('2d').drawImage(img,0,0,w,h);
+      const newData=c.toDataURL('image/jpeg',.92);
+      const newImg=new Image();
+      await new Promise((resolve,reject)=>{
+        newImg.onload=resolve;newImg.onerror=reject;newImg.src=newData;
+      });
+      return {data:newData,img:newImg,resized:true,w,h};
+    }
+
+    async function loadImage(file){
+      hideMessages();
+      const prepared=await downscaleLargeImage(file);
+      state.originalDataUrl=prepared.data;
+      state.originalImage=prepared.img;
+      state.resultUrl='';
+      state.resultImage=null;
+      uploadOverlay.classList.add('hidden');
+      $('enhanceBtn').disabled=false;
+      $('origSize').textContent=`${prepared.img.width} × ${prepared.img.height}`;
+      updateEstimate();
+      drawContain(beforeCanvas,prepared.img);
+      afterCanvas.getContext('2d').clearRect(0,0,afterCanvas.width,afterCanvas.height);
+      divider.style.display='none';
+      handle.classList.add('hidden');
+      $('rightLabel').style.display='none';
+      $('modeBadge').style.display='none';
+      $('backdropLayer').style.backgroundImage=`url("${prepared.data}")`;
+      showStatus(prepared.resized?`圖片過大，已自動縮小為 ${prepared.w} × ${prepared.h}`:`圖片已載入，準備執行 ${pipelines[state.pipeline].title}`);
+    }
+
+    function updateEstimate(){
+      if(!state.originalImage) return;
+      $('outSize').textContent=`${state.originalImage.width*state.scale} × ${state.originalImage.height*state.scale}`;
+      $('outFileSize').textContent='約 '+formatBytes(state.originalImage.width*state.originalImage.height*state.scale*state.scale*.32);
+      $('currentScale').textContent=`${state.scale}x`;
+    }
+
+    function formatBytes(bytes){
+      const units=['B','KB','MB','GB'];
+      let i=0,n=Number(bytes)||0;
+      while(n>=1024 && i<units.length-1){n/=1024;i++}
+      return `${n>=100?n.toFixed(0):n>=10?n.toFixed(1):n.toFixed(2)} ${units[i]}`;
+    }
+
+    $('fileInput').addEventListener('change',(e)=>{
+      const f=e.target.files?.[0];
+      if(f) loadImage(f);
+    });
+    ['dragenter','dragover','dragleave','drop'].forEach(name=>viewer.addEventListener(name,(e)=>{e.preventDefault();e.stopPropagation()}));
+    viewer.addEventListener('drop',(e)=>{
+      const f=e.dataTransfer?.files?.[0];
+      if(f) loadImage(f);
+    });
+    $('reuploadBtn').addEventListener('click',()=>{
+      $('fileInput').value='';
+      $('fileInput').click();
+    });
+
+    async function startEnhance(){
+      if(!state.originalDataUrl) return showError('請先上傳圖片');
+      hideMessages();
+      setProgress(10,'建立 pipeline 任務…');
+      $('enhanceBtn').disabled=true;
+      try{
+        const res=await fetch('/api/predict',{
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({
+            imageBase64:state.originalDataUrl,
+            scale:state.scale,
+            mode:state.mode,
+            pipeline:state.pipeline,
+            faceEnhance:state.faceEnhance
+          })
+        });
+        const data=await res.json();
+        if(!res.ok) throw new Error(data.error || data.detail || '建立任務失敗');
+        setProgress(25,'模型處理中…');
+        await pollPrediction(data.id);
+      }catch(err){
+        hideProgress();
+        $('enhanceBtn').disabled=false;
+        showError(err.message || '處理失敗');
+      }
+    }
+
+    async function pollPrediction(id){
+      let progress=25;
+      for(let i=0;i<120;i++){
+        const res=await fetch('/api/poll?id='+encodeURIComponent(id));
+        const data=await res.json();
+        if(data.status==='succeeded'){
+          const output=Array.isArray(data.output)?data.output[0]:data.output;
+          await showResult(output);
+          hideProgress();
+          $('enhanceBtn').disabled=false;
+          showStatus('AI 增強完成');
+          return;
+        }
+        if(data.status==='failed' || data.status==='canceled'){
+          throw new Error(data.error || '模型處理失敗');
+        }
+        progress=Math.min(92,progress+5);
+        setProgress(progress,'Pipeline 處理中…');
+        await new Promise(r=>setTimeout(r,2500));
+      }
+      throw new Error('等待模型回應逾時');
+    }
+
+    async function showResult(url){
+      state.resultUrl=url;
+      const img=new Image();
+      img.crossOrigin='anonymous';
+      await new Promise((resolve,reject)=>{
+        img.onload=resolve;img.onerror=reject;img.src=url;
+      });
+      state.resultImage=img;
+      drawContain(afterCanvas,img);
+      setSplit(50);
+      try{
+        const blob=await (await fetch(url)).blob();
+        $('outFileSize').textContent=formatBytes(blob.size);
+      }catch{}
+      downloadDD.render();
+      updateUI();
+    }
+
+    $('enhanceBtn').addEventListener('click',startEnhance);
+
+    async function downloadResult(format){
+      if(!state.resultUrl) return showError('請先完成 AI 增強');
+      const a=document.createElement('a');
+      a.href=state.resultUrl;
+      a.download=`urban-upscale-${Date.now()}.${format==='jpg'?'jpg':format}`;
+      a.click();
+    }
+
+    function openLightbox(src){
+      if(!src) return;
+      $('lightboxImage').src=src;
+      $('lightbox').classList.add('active');
+      document.body.style.overflow='hidden';
+    }
+    function closeLightbox(){
+      $('lightbox').classList.remove('active');
+      $('lightboxImage').src='';
+      document.body.style.overflow='';
+    }
+    $('lightboxClose').addEventListener('click',closeLightbox);
+    $('lightbox').addEventListener('click',(e)=>{if(e.target===$('lightbox'))closeLightbox()});
+    beforeCanvas.addEventListener('click',()=>state.originalDataUrl&&openLightbox(state.originalDataUrl));
+    afterCanvas.addEventListener('click',()=>state.resultUrl&&openLightbox(state.resultUrl));
+
+    window.addEventListener('resize',()=>{
+      if(state.originalImage) drawContain(beforeCanvas,state.originalImage);
+      if(state.resultImage){ drawContain(afterCanvas,state.resultImage); setSplit(state.split); }
+    });
+
+    updateUI();
+    applyBackdrop();
+  </script>
 </body>
 </html>
