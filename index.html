@@ -1,875 +1,117 @@
-
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Urban Upscale AI</title>
-  <style>
-    :root{
-      --bg:#f3f5f8;
-      --panel:#ffffff;
-      --line:#e5e7eb;
-      --text:#111827;
-      --muted:#6b7280;
-      --soft:#9ca3af;
-      --brand:#4f46e5;
-      --brand2:#60a5fa;
-      --shadow:0 20px 45px rgba(15,23,42,.08);
-      --shadow-soft:0 10px 24px rgba(15,23,42,.06);
-      --radius:28px;
-      --font: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      --bg-tint: rgba(255,255,255,.42);
-      --bg-color: #ffffff;
-    }
-    *{box-sizing:border-box}
-    html,body{margin:0;padding:0;font-family:var(--font);background:linear-gradient(180deg,#f8fafc 0%,#eef2f7 100%);color:var(--text)}
-    button,input{font:inherit}
-    .shell{max-width:1400px;margin:0 auto;padding:22px 18px 40px}
-    .topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;background:rgba(255,255,255,.86);backdrop-filter:blur(18px);border:1px solid rgba(255,255,255,.85);border-radius:24px;padding:16px 18px;box-shadow:var(--shadow);margin-bottom:18px}
-    .brand{display:flex;align-items:center;gap:14px}
-    .brand-mark{width:44px;height:44px;border-radius:15px;background:linear-gradient(135deg,var(--brand),var(--brand2));box-shadow:0 8px 24px rgba(79,70,229,.18)}
-    .brand-name{font-size:18px;font-weight:800;letter-spacing:-.02em}
-    .brand-sub{font-size:12px;color:var(--muted);margin-top:4px}
-    .top-pills{display:flex;gap:8px;flex-wrap:wrap}
-    .top-pills span{padding:8px 12px;border-radius:999px;border:1px solid var(--line);background:#fff;font-size:12px;color:#475569}
-
-    .layout{display:grid;grid-template-columns:380px minmax(0,1fr);gap:18px}
-    .panel,.preview-card,.download-card{background:rgba(255,255,255,.92);backdrop-filter:blur(18px);border:1px solid rgba(255,255,255,.9);border-radius:var(--radius);box-shadow:var(--shadow)}
-    .panel{padding:22px;position:sticky;top:18px;height:max-content}
-    .section{margin-bottom:18px}
-    .section:last-child{margin-bottom:0}
-    .label{font-size:13px;font-weight:800;letter-spacing:.04em;color:#475569;text-transform:uppercase;margin-bottom:10px}
-    .hint-card,.toggle-card,.dropdown-trigger,.dropdown-menu,.info-row,.download-card{border:1px solid var(--line);background:#fff}
-    .hint-card,.toggle-card{border-radius:22px;padding:16px;box-shadow:var(--shadow-soft)}
-    .hint-card .title{font-size:14px;font-weight:800}
-    .hint-card .sub{font-size:12px;color:var(--muted);line-height:1.7;margin-top:6px}
-    .toggle-card{display:flex;align-items:center;justify-content:space-between;gap:12px}
-    .toggle-title{font-size:14px;font-weight:700}
-    .toggle-desc{font-size:12px;color:var(--muted);margin-top:4px}
-    .switch{position:relative;width:56px;height:32px;flex:0 0 auto}
-    .switch input{display:none}
-    .slider{position:absolute;inset:0;border-radius:999px;background:#e5e7eb;transition:.2s}
-    .slider:after{content:"";position:absolute;left:4px;top:4px;width:24px;height:24px;border-radius:50%;background:#fff;transition:.2s;box-shadow:0 6px 14px rgba(15,23,42,.16)}
-    .switch input:checked + .slider{background:linear-gradient(90deg,var(--brand),var(--brand2))}
-    .switch input:checked + .slider:after{transform:translateX(24px)}
-    .dropdown{position:relative}
-    .dropdown-trigger{width:100%;border-radius:22px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:.18s;background:linear-gradient(180deg,#fff,#fafafa);box-shadow:var(--shadow-soft)}
-    .dropdown-trigger:hover{border-color:#c7d2fe;transform:translateY(-1px)}
-    .dropdown-main{min-width:0;padding-right:10px}
-    .dropdown-value{font-size:14px;font-weight:800;color:#111827}
-    .dropdown-meta{font-size:12px;color:var(--muted);margin-top:4px;line-height:1.55}
-    .dropdown-arrow{width:34px;height:34px;border-radius:12px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;background:#f9fafb;color:#4b5563}
-    .dropdown-menu{position:absolute;left:0;right:0;top:calc(100% + 10px);display:none;z-index:25;border-radius:22px;padding:8px;background:#fff;box-shadow:0 24px 50px rgba(15,23,42,.16);border:1px solid var(--line)}
-    .dropdown.open .dropdown-menu{display:block;animation:fadeUp .16s ease}
-    .dropdown-item{border-radius:18px;padding:11px 12px;cursor:pointer;transition:.18s}
-    .dropdown-item:hover{background:#f8fafc}
-    .dropdown-item.active{background:#eff6ff;box-shadow:inset 0 0 0 1px #bfdbfe}
-    .dropdown-item-title{font-size:14px;font-weight:700;color:#111827}
-    .dropdown-item-desc{font-size:12px;color:var(--muted);line-height:1.5;margin-top:4px}
-
-    .preview-card{overflow:hidden}
-    .preview-head{padding:18px 20px 16px;border-bottom:1px solid var(--line)}
-    .preview-top{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}
-    .preview-title{font-size:22px;font-weight:800;letter-spacing:-.02em}
-    .preview-sub{font-size:13px;color:var(--muted);margin-top:8px}
-    .head-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
-    .btn{border:none;border-radius:999px;padding:11px 16px;cursor:pointer;transition:.18s;background:#fff;color:#111827;border:1px solid var(--line);box-shadow:var(--shadow-soft)}
-    .btn:hover{transform:translateY(-1px)}
-    .btn.primary{background:#111827;color:#fff;font-weight:800}
-    .btn:disabled{opacity:.55;cursor:not-allowed;transform:none}
-    .info-row{margin-top:14px;border-radius:18px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;background:#fcfcfd}
-    .stats{display:flex;flex-wrap:wrap;gap:18px 26px}
-    .stat-label{font-size:11px;color:var(--soft)}
-    .stat-value{font-size:13px;font-weight:800;margin-top:4px;color:#111827}
-
-    .viewer{position:relative;aspect-ratio:16 / 9;overflow:hidden;background:linear-gradient(135deg, rgba(255,255,255,.76), rgba(255,255,255,.62)), var(--bg-color)}
-    .backdrop-layer,.tint-layer{position:absolute;inset:0;pointer-events:none}
-    .backdrop-layer{background-position:center;background-size:cover;filter:blur(40px) saturate(1.1);transform:scale(1.12);opacity:.42}
-    .tint-layer{background-image:var(--bg-tint);mix-blend-mode:multiply}
-    .compare-wrap{position:absolute;inset:16px;z-index:3;border-radius:24px;overflow:hidden;box-shadow:0 14px 38px rgba(15,23,42,.14)}
-    .compare-pane{position:absolute;inset:0}
-    .compare-pane canvas{width:100%;height:100%;display:block;background:transparent}
-    .compare-pane.after{clip-path:inset(0 50% 0 0)}
-    .divider{position:absolute;top:16px;bottom:16px;left:50%;width:2px;background:rgba(255,255,255,.96);box-shadow:0 0 16px rgba(255,255,255,.9);display:none;transform:translateX(-1px);z-index:5}
-    .handle{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:none;z-index:6;width:44px;height:44px;border-radius:999px;background:rgba(255,255,255,.92);border:1px solid rgba(255,255,255,.95);display:flex;align-items:center;justify-content:center;color:#374151;box-shadow:0 10px 20px rgba(15,23,42,.15);cursor:ew-resize}
-    .handle.hidden{display:none}
-    .viewer-label{position:absolute;top:16px;padding:8px 12px;border-radius:999px;font-size:12px;backdrop-filter:blur(8px);z-index:7;box-shadow:var(--shadow-soft)}
-    .viewer-label.left{left:16px;background:rgba(255,255,255,.88);color:#374151}
-    .viewer-label.right{right:16px;background:rgba(17,24,39,.78);color:#fff;display:none}
-    .upload-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.2s;z-index:8}
-    .upload-overlay.hidden{opacity:0;pointer-events:none}
-    .overlay-card{min-width:min(460px,78%);max-width:78%;border-radius:28px;padding:34px 26px;text-align:center;background:rgba(255,255,255,.72);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.95);box-shadow:0 22px 50px rgba(15,23,42,.12)}
-    .overlay-icon{width:66px;height:66px;border-radius:24px;background:rgba(255,255,255,.85);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:30px;box-shadow:var(--shadow-soft)}
-    .overlay-title{font-size:18px;font-weight:800;color:#111827}
-    .overlay-desc{font-size:13px;color:var(--muted);margin-top:10px}
-    .processing{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:rgba(248,250,252,.56);backdrop-filter:blur(10px);z-index:9}
-    .processing.active{display:flex}
-    .processing-card{width:min(360px,84%);border-radius:24px;padding:18px;background:rgba(255,255,255,.92);border:1px solid rgba(255,255,255,.95);box-shadow:0 30px 60px rgba(15,23,42,.14)}
-    .spin{width:38px;height:38px;border-radius:50%;border:2px solid rgba(17,24,39,.1);border-top-color:var(--brand2);animation:spin 1s linear infinite}
-    .processing-head{display:flex;align-items:center;gap:12px}
-    .processing-title{font-weight:800}
-    .processing-sub{font-size:12px;color:var(--muted);margin-top:4px}
-    .bar{height:9px;border-radius:999px;background:#eef2f7;margin-top:16px;overflow:hidden}
-    .bar > span{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--brand2),var(--brand));border-radius:inherit;transition:width .24s ease;position:relative}
-    .bar > span:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.55),transparent);animation:shimmer 1.3s linear infinite}
-    .bar-meta{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-top:10px}
-    .palette-wrap{padding:14px 18px;border-top:1px solid var(--line);background:#fff}
-    .palette-label{font-size:12px;color:var(--muted);margin-bottom:10px}
-    .palette-list{display:grid;gap:12px}
-    .gradient-chip{
-      position:relative;height:44px;border-radius:999px;cursor:pointer;border:1px solid var(--line);
-      box-shadow:inset 0 1px 2px rgba(15,23,42,.05), 0 8px 18px rgba(15,23,42,.05);
-      overflow:hidden;transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;
-    }
-    .gradient-chip:hover{transform:translateY(-1px);box-shadow:inset 0 1px 2px rgba(15,23,42,.05), 0 14px 28px rgba(15,23,42,.08)}
-    .gradient-chip.active{border-color:#94a3b8;box-shadow:0 0 0 2px rgba(148,163,184,.22), inset 0 1px 2px rgba(15,23,42,.05), 0 14px 28px rgba(15,23,42,.08)}
-    .gradient-chip .chip-glow{
-      position:absolute;inset:0;
-      background:linear-gradient(90deg, rgba(255,255,255,.08), transparent 18%, transparent 82%, rgba(255,255,255,.08));
-      pointer-events:none
-    }
-    .gradient-chip::after{
-      content:"";
-      position:absolute;
-      top:50%;
-      left:var(--pick-position, 50%);
-      transform:translate(-50%, -50%);
-      width:18px;
-      height:18px;
-      border-radius:999px;
-      border:2px solid rgba(255,255,255,.95);
-      box-shadow:0 0 0 1px rgba(15,23,42,.14), 0 4px 10px rgba(15,23,42,.12);
-      background:var(--picked-color, #ffffff);
-      pointer-events:none;
-    }
-    .palette-note{font-size:11px;color:var(--soft);margin-top:8px;line-height:1.6}
-    .download-card{padding:14px 18px}
-    .download-wrap{display:flex;justify-content:flex-end}
-    .download-dropdown{width:min(250px,100%)}
-    .status,.error{margin-top:12px;padding:12px 14px;border-radius:16px;border:1px solid var(--line);font-size:13px;display:none;box-shadow:var(--shadow-soft)}
-    .status{background:#eff6ff;color:#1d4ed8}
-    .error{background:#fef2f2;color:#b91c1c}
-    .lightbox{position:fixed;inset:0;background:rgba(255,255,255,.72);backdrop-filter:blur(12px);display:none;align-items:center;justify-content:center;padding:24px;z-index:40}
-    .lightbox.active{display:flex}
-    .lightbox img{max-width:min(92vw,1600px);max-height:88vh;border-radius:18px;border:1px solid rgba(255,255,255,.95);box-shadow:0 24px 60px rgba(15,23,42,.18);background:#fff}
-    .close{position:absolute;top:18px;right:18px;width:44px;height:44px;border-radius:999px;border:1px solid var(--line);background:#fff;color:#111827;font-size:28px;line-height:1;cursor:pointer;box-shadow:var(--shadow-soft)}
-    @keyframes spin{to{transform:rotate(360deg)}}
-    @keyframes shimmer{100%{transform:translateX(100%)}}
-    @keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
-    @media (max-width: 1080px){ .layout{grid-template-columns:1fr} .panel{position:static} }
-    @media (max-width: 720px){
-      .shell{padding:14px 12px 28px}
-      .topbar,.panel,.preview-card,.download-card{border-radius:22px}
-      .preview-title{font-size:18px}
-      .preview-sub{display:none}
-      .head-actions{width:100%;justify-content:flex-start}
-      .overlay-card{min-width:auto;max-width:88%;padding:28px 18px}
-      .top-pills{display:none}
-      .stats{gap:14px 18px}
-      .palette-bar{height:36px}
-      .compare-wrap{inset:12px}
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dual Mode Upscaler</title>
+<style>
+body{margin:0;font-family:system-ui;background:#f5f7fb}
+.container{max-width:1200px;margin:auto;padding:20px}
+.grid{display:grid;grid-template-columns:320px 1fr;gap:20px}
+.card{background:#fff;border-radius:20px;padding:20px;box-shadow:0 10px 30px rgba(0,0,0,.08)}
+button{padding:10px;border:none;border-radius:12px;cursor:pointer}
+.mode{display:flex;gap:10px}
+.mode button{flex:1}
+.active{background:black;color:white}
+.preview{height:420px;background:#ddd;border-radius:20px;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative}
+.preview img{max-width:100%;max-height:100%}
+.split{position:absolute;top:0;bottom:0;width:2px;background:white;left:50%}
+</style>
 </head>
 <body>
-  <div class="shell">
-    <div class="topbar">
-      <div class="brand">
-        <div class="brand-mark"></div>
-        <div>
-          <div class="brand-name">Urban Upscale AI</div>
-          <div class="brand-sub">Premium Image Upscaler Studio</div>
-        </div>
-      </div>
-      <div class="top-pills">
-        <span>Topaz Image Upscale</span>
-        <span>White UI</span>
-        <span>Slider Compare</span>
-      </div>
-    </div>
+<div class="container">
+<h2>AI 雙模式超解析</h2>
 
-    <div class="layout">
-      <aside class="panel">
-        <div class="section">
-          <div class="label">圖片類型</div>
-          <div class="dropdown" id="contentTypeDropdown"></div>
-        </div>
-        <div class="section">
-          <div class="label">模型策略</div>
-          <div class="dropdown" id="engineDropdown"></div>
-        </div>
-        <div class="section">
-          <div class="label">放大倍率</div>
-          <div class="dropdown" id="scaleDropdown"></div>
-        </div>
-        <div class="section">
-          <div class="hint-card">
-            <div class="title">模型說明</div>
-            <div class="sub">你目前這版較穩的 Topaz 設定是：High Fidelity V2、Text Refine、CGI、Low Resolution V2。原本的「Topaz Gigapixel AI」名稱先移除，避免跟目前不支援的後端設定衝突。</div>
-          </div>
-        </div>
-        <div class="section">
-          <div class="toggle-card">
-            <div>
-              <div class="toggle-title">臉部優化</div>
-              <div class="toggle-desc">人像照片建議開啟</div>
-            </div>
-            <label class="switch">
-              <input type="checkbox" id="faceEnhance" checked />
-              <span class="slider"></span>
-            </label>
-          </div>
-        </div>
-        <div class="status" id="statusBox"></div>
-        <div class="error" id="errorBox"></div>
-      </aside>
+<div class="grid">
+<div class="card">
 
-      <main>
-        <section class="preview-card">
-          <div class="preview-head">
-            <div class="preview-top">
-              <div>
-                <div class="preview-title">Live Preview</div>
-                <div class="preview-sub">原圖在左，AI 增強在右。可拖曳中間滑桿做正式產品式對比。</div>
-              </div>
-              <div class="head-actions">
-                <button class="btn" id="reuploadBtn">重新上傳</button>
-                <button class="btn primary" id="enhanceBtn" disabled>開始增強</button>
-              </div>
-            </div>
-            <div class="info-row">
-              <div class="stats">
-                <div><div class="stat-label">原始尺寸</div><div class="stat-value" id="origSize">未上傳</div></div>
-                <div><div class="stat-label">輸出尺寸</div><div class="stat-value" id="outSize">—</div></div>
-                <div><div class="stat-label">圖片類型</div><div class="stat-value" id="selectedType">一般照片</div></div>
-                <div><div class="stat-label">模型</div><div class="stat-value" id="resolvedModel">Topaz High Fidelity V2</div></div>
-                <div><div class="stat-label">倍率</div><div class="stat-value" id="currentScale">4x</div></div>
-                <div><div class="stat-label">輸出檔案大小</div><div class="stat-value" id="outFileSize">—</div></div>
-              </div>
-            </div>
-          </div>
+<div class="mode">
+<button id="natural" class="active">Natural</button>
+<button id="enhance">Enhance</button>
+</div>
 
-          <div class="viewer" id="viewer">
-            <div class="backdrop-layer" id="backdropLayer"></div>
-            <div class="tint-layer"></div>
+<select id="pipeline">
+<option value="natural">Natural Pipeline（穩定）</option>
+<option value="enhance">Enhance Pipeline（強化）</option>
+</select>
 
-            <div class="compare-wrap">
-              <div class="compare-pane before"><canvas id="beforeCanvas"></canvas></div>
-              <div class="compare-pane after" id="afterPane"><canvas id="afterCanvas"></canvas></div>
-            </div>
+<select id="scale">
+<option>2</option>
+<option selected>4</option>
+<option>6</option>
+</select>
 
-            <div class="divider" id="divider"></div>
-            <div class="handle hidden" id="handle">↔</div>
-            <div class="viewer-label left">原圖</div>
-            <div class="viewer-label right" id="rightLabel">AI 增強</div>
+<input type="file" id="file">
+<button id="run">開始增強</button>
 
-            <label class="upload-overlay" id="uploadOverlay" for="fileInput">
-              <div class="overlay-card">
-                <div class="overlay-icon">🖼️</div>
-                <div class="overlay-title">點擊或拖曳圖片上傳</div>
-                <div class="overlay-desc">支援 PNG / JPG / WEBP，圖片下方會自動補背景並可調整色系</div>
-              </div>
-            </label>
+<p id="msg"></p>
 
-            <div class="processing" id="processing">
-              <div class="processing-card">
-                <div class="processing-head">
-                  <div class="spin"></div>
-                  <div>
-                    <div class="processing-title">AI 正在優化圖片</div>
-                    <div class="processing-sub" id="progressLabel">正在套用你選擇的模型策略…</div>
-                  </div>
-                </div>
-                <div class="bar"><span id="progressFill"></span></div>
-                <div class="bar-meta">
-                  <span id="progressModel">Topaz High Fidelity V2</span>
-                  <span id="progressPercent">0%</span>
-                </div>
-              </div>
-            </div>
-          </div>
+</div>
 
-          <div class="palette-wrap">
-            <div class="palette-label">進階漸層背景</div>
-            <div class="palette-list" id="paletteList">
-              <div class="gradient-chip active" id="mainGradientChip" data-color="#ffffff" data-tint="linear-gradient(90deg, rgba(255,106,136,.24), rgba(255,209,102,.18), rgba(0,198,255,.18), rgba(196,113,237,.24))" style="background:linear-gradient(90deg, #ff6a88 0%, #ffb199 14%, #ffd166 28%, #9be15d 42%, #00c6ff 58%, #7f7fd5 74%, #c471ed 88%, #f64f59 100%)">
-                <div class="chip-glow"></div>
-              </div>
-            </div>
-            <div class="palette-note">點擊漸層套用融合背景；點右側滴管圖示可直接從畫面取色。</div>
-          </div>
-        </section>
+<div class="card">
+<div class="preview">
+<img id="imgBefore">
+<img id="imgAfter" style="position:absolute;clip-path:inset(0 50% 0 0)">
+<div class="split"></div>
+</div>
+</div>
 
-        <section class="download-card" style="margin-top:18px">
-          <div class="download-wrap">
-            <div class="download-dropdown">
-              <div class="dropdown" id="downloadDropdown"></div>
-            </div>
-          </div>
-        </section>
-      </main>
-    </div>
-  </div>
+</div>
+</div>
 
-  <input type="file" id="fileInput" accept="image/png,image/jpeg,image/webp" hidden />
+<script>
+let base64=""
 
-  <div class="lightbox" id="lightbox">
-    <button class="close" id="lightboxClose">×</button>
-    <img id="lightboxImage" alt="preview enlarged" />
-  </div>
+file.onchange=e=>{
+ const r=new FileReader()
+ r.onload=()=>{
+   base64=r.result
+   imgBefore.src=base64
+ }
+ r.readAsDataURL(e.target.files[0])
+}
 
-  <script>
-    const $ = (id) => document.getElementById(id);
-    const state = {
-      originalFile: null,
-      originalDataUrl: '',
-      originalImage: null,
-      resultUrl: '',
-      resultImage: null,
-      contentType: 'photo',
-      engine: 'topaz_highfidelity_v2',
-      scale: 4,
-      faceEnhance: true,
-      backdropColor: '#ffffff',
-      backdropTint: 'rgba(255,255,255,.42)',
-      split: 50,
-      dragging: false
-    };
+natural.onclick=()=>{
+ natural.classList.add("active")
+ enhance.classList.remove("active")
+ pipeline.value="natural"
+}
 
-    const contentTypeOptions = [
-      { value:'photo', title:'一般照片', desc:'適合日常照片、風景、商品圖' },
-      { value:'portrait', title:'人像 / 臉部', desc:'優先保留五官與皮膚細節' },
-      { value:'text', title:'文字 / 文件', desc:'適合截圖、掃描、招牌、菜單' },
-      { value:'illustration', title:'插畫 / 海報', desc:'適合動漫、海報、設計稿' }
-    ];
-    const engineOptions = [
-      { value:'topaz_highfidelity_v2', title:'Topaz · High Fidelity V2', desc:'一般照片 / 風景 / 細節保留' },
-      { value:'topaz_text_refine', title:'Topaz · Text Refine', desc:'文字 / 文件 / 截圖 / 招牌' },
-      { value:'topaz_cgi', title:'Topaz · CGI', desc:'插畫 / 動漫 / 海報 / 電腦圖像' },
-      { value:'topaz_low_resolution_v2', title:'Topaz · Low Resolution V2', desc:'低解析 / 小圖補細節' },
-      { value:'real_esrgan', title:'Real-ESRGAN', desc:'通用快速處理' }
-    ];
-    const scaleOptions = [
-      { value:'2', title:'2x', desc:'速度較快' },
-      { value:'4', title:'4x', desc:'平衡品質與速度' },
-      { value:'6', title:'6x', desc:'更高細節' },
-      { value:'8', title:'8x', desc:'最大倍率' }
-    ];
-    const downloadOptions = [
-      { value:'png', title:'下載 PNG', desc:'高品質 / 保留細節' },
-      { value:'jpg', title:'下載 JPG', desc:'檔案較小 / 分享用' },
-      { value:'webp', title:'下載 WEBP', desc:'高壓縮 / 現代格式' }
-    ];
+enhance.onclick=()=>{
+ enhance.classList.add("active")
+ natural.classList.remove("active")
+ pipeline.value="enhance"
+}
 
-    function createDropdown(root, {value, meta, options, onSelect}) {
-      const current = () => options.find(o => String(o.value) === String(value()));
-      root.className = 'dropdown';
-      const render = () => {
-        const now = current();
-        root.innerHTML = `
-          <button class="dropdown-trigger" type="button">
-            <div class="dropdown-main">
-              <div class="dropdown-value">${now?.title || ''}</div>
-              ${meta(now) ? `<div class="dropdown-meta">${meta(now)}</div>` : ''}
-            </div>
-            <div class="dropdown-arrow">▾</div>
-          </button>
-          <div class="dropdown-menu">
-            ${options.map(o => `
-              <div class="dropdown-item ${String(o.value)===String(value()) ? 'active' : ''}" data-value="${o.value}">
-                <div class="dropdown-item-title">${o.title}</div>
-                ${o.desc ? `<div class="dropdown-item-desc">${o.desc}</div>` : ''}
-              </div>
-            `).join('')}
-          </div>`;
-        root.querySelector('.dropdown-trigger').addEventListener('click', (e) => {
-          e.stopPropagation();
-          document.querySelectorAll('.dropdown.open').forEach(d => { if (d !== root) d.classList.remove('open'); });
-          root.classList.toggle('open');
-        });
-        root.querySelectorAll('.dropdown-item').forEach(item => {
-          item.addEventListener('click', async () => {
-            const next = item.dataset.value;
-            root.classList.remove('open');
-            await onSelect(next);
-            render();
-          });
-        });
-      };
-      render();
-      return { render };
-    }
+run.onclick=async()=>{
+ msg.innerText="處理中..."
 
-    function typeLabel(type) {
-      return ({ photo:'一般照片', portrait:'人像 / 臉部', text:'文字 / 文件', illustration:'插畫 / 海報' })[type] || '一般照片';
-    }
-    function modelLabel(engine) {
-      return ({
-        topaz_highfidelity_v2:'Topaz High Fidelity V2',
-        topaz_text_refine:'Topaz Text Refine',
-        topaz_cgi:'Topaz CGI',
-        topaz_low_resolution_v2:'Topaz Low Resolution V2',
-        real_esrgan:'Real-ESRGAN'
-      })[engine] || engine;
-    }
-    function formatBytes(bytes) {
-      if (!bytes || bytes <= 0) return '—';
-      const units = ['B', 'KB', 'MB', 'GB'];
-      let i = 0, n = bytes;
-      while (n >= 1024 && i < units.length - 1) { n /= 1024; i++; }
-      return `${n >= 100 ? n.toFixed(0) : n >= 10 ? n.toFixed(1) : n.toFixed(2)} ${units[i]}`;
-    }
+ const res=await fetch("/api/predict",{
+  method:"POST",
+  headers:{"Content-Type":"application/json"},
+  body:JSON.stringify({
+    imageBase64:base64,
+    pipeline:pipeline.value,
+    scale:scale.value
+  })
+ })
 
-    const contentTypeDropdown = createDropdown($('contentTypeDropdown'), {
-      value: () => state.contentType,
-      meta: (now) => now?.desc || '',
-      options: contentTypeOptions,
-      onSelect: async (next) => { state.contentType = next; $('selectedType').textContent = typeLabel(next); }
-    });
-    const engineDropdown = createDropdown($('engineDropdown'), {
-      value: () => state.engine,
-      meta: (now) => now?.desc || '',
-      options: engineOptions,
-      onSelect: async (next) => {
-        state.engine = next;
-        $('resolvedModel').textContent = modelLabel(next);
-        $('progressModel').textContent = modelLabel(next);
-      }
-    });
-    const scaleDropdown = createDropdown($('scaleDropdown'), {
-      value: () => state.scale,
-      meta: (now) => now?.desc || '',
-      options: scaleOptions,
-      onSelect: async (next) => {
-        state.scale = Number(next);
-        $('currentScale').textContent = `${state.scale}x`;
-        if (state.originalImage) updateOutputEstimate();
-      }
-    });
-    const downloadDropdown = createDropdown($('downloadDropdown'), {
-      value: () => 'download',
-      meta: () => state.resultUrl ? '點選副檔名後直接下載' : '請先完成 AI 增強',
-      options: downloadOptions,
-      onSelect: async (next) => {
-        if (!state.resultUrl) { showError('請先完成 AI 增強。'); return; }
-        await downloadResult(next);
-      }
-    });
+ const data=await res.json()
 
-    document.addEventListener('click', () => {
-      document.querySelectorAll('.dropdown.open').forEach(d => d.classList.remove('open'));
-    });
+ let done=false
+ while(!done){
+  await new Promise(r=>setTimeout(r,2000))
+  const poll=await fetch("/api/poll?id="+data.id)
+  const result=await poll.json()
 
-    $('faceEnhance').addEventListener('change', e => { state.faceEnhance = e.target.checked; });
-
-    const beforeCanvas = $('beforeCanvas');
-    const afterCanvas = $('afterCanvas');
-    const afterPane = $('afterPane');
-    const divider = $('divider');
-    const handle = $('handle');
-    const rightLabel = $('rightLabel');
-    const uploadOverlay = $('uploadOverlay');
-    const processing = $('processing');
-    const fileInput = $('fileInput');
-    const viewer = $('viewer');
-    const compareWrap = viewer.querySelector('.compare-wrap');
-
-    function applyBackdropTheme() {
-      viewer.style.setProperty('--bg-color', state.backdropColor);
-      viewer.style.setProperty('--bg-tint', state.backdropTint);
-    }
-    function showStatus(text) { const el = $('statusBox'); el.textContent = text; el.style.display = 'block'; }
-    function hideStatus() { $('statusBox').style.display = 'none'; }
-    function showError(text) { const el = $('errorBox'); el.textContent = text; el.style.display = 'block'; }
-    function hideError() { $('errorBox').style.display = 'none'; }
-    function setProgress(percent, label) {
-      processing.classList.add('active');
-      $('progressFill').style.width = `${percent}%`;
-      $('progressPercent').textContent = `${percent}%`;
-      $('progressLabel').textContent = label;
-      $('progressModel').textContent = $('resolvedModel').textContent;
-    }
-    function hideProgress() {
-      processing.classList.remove('active');
-      $('progressFill').style.width = '0%';
-      $('progressPercent').textContent = '0%';
-      $('progressLabel').textContent = '正在套用你選擇的模型策略…';
-    }
-    function updateOutputEstimate() {
-      if (!state.originalImage) return;
-      $('outSize').textContent = `${state.originalImage.width * state.scale} × ${state.originalImage.height * state.scale}`;
-      const estimatedBytes = Math.round(state.originalImage.width * state.originalImage.height * state.scale * state.scale * 0.32);
-      $('outFileSize').textContent = `約 ${formatBytes(estimatedBytes)}`;
-    }
-    function resetResult() {
-      state.resultUrl = '';
-      state.resultImage = null;
-      afterCanvas.getContext('2d').clearRect(0,0,afterCanvas.width,afterCanvas.height);
-      rightLabel.style.display = 'none';
-      divider.style.display = 'none';
-      handle.classList.add('hidden');
-      $('outFileSize').textContent = '—';
-      afterPane.style.clipPath = 'inset(0 50% 0 0)';
-      downloadDropdown.render();
-    }
-    function resetUploader(openPicker = false) {
-      hideError(); hideStatus(); hideProgress(); resetResult();
-      state.originalFile = null;
-      state.originalDataUrl = '';
-      state.originalImage = null;
-      $('origSize').textContent = '未上傳';
-      $('outSize').textContent = '—';
-      $('enhanceBtn').disabled = true;
-      uploadOverlay.classList.remove('hidden');
-      $('backdropLayer').style.backgroundImage = '';
-      fileInput.value = '';
-      beforeCanvas.getContext('2d').clearRect(0,0,beforeCanvas.width,beforeCanvas.height);
-      if (openPicker) setTimeout(() => fileInput.click(), 50);
-    }
-
-    function setupCanvas(canvas) {
-      const bounds = compareWrap.getBoundingClientRect();
-      const dpr = window.devicePixelRatio || 1;
-      canvas.width = Math.max(1, Math.floor(bounds.width * dpr));
-      canvas.height = Math.max(1, Math.floor(bounds.height * dpr));
-      canvas.style.width = bounds.width + 'px';
-      canvas.style.height = bounds.height + 'px';
-      const ctx = canvas.getContext('2d');
-      ctx.setTransform(dpr,0,0,dpr,0,0);
-      ctx.clearRect(0,0,bounds.width,bounds.height);
-      return { ctx, width: bounds.width, height: bounds.height };
-    }
-    function roundRect(ctx, x, y, w, h, r) {
-      ctx.beginPath();
-      ctx.moveTo(x + r, y);
-      ctx.arcTo(x + w, y, x + w, y + h, r);
-      ctx.arcTo(x + w, y + h, x, y + h, r);
-      ctx.arcTo(x, y + h, x, y, r);
-      ctx.arcTo(x, y, x + w, y, r);
-      ctx.closePath();
-    }
-    function drawContain(canvas, image) {
-      const { ctx, width, height } = setupCanvas(canvas);
-      const scale = Math.min(width / image.width, height / image.height);
-      const w = image.width * scale, h = image.height * scale;
-      const x = (width - w) / 2, y = (height - h) / 2;
-      roundRect(ctx, x, y, w, h, 24);
-      ctx.clip();
-      ctx.drawImage(image, x, y, w, h);
-    }
-    function setSplit(percent = 50) {
-      if (!state.resultUrl) return;
-      state.split = Math.max(0, Math.min(100, percent));
-      divider.style.display = 'block';
-      handle.classList.remove('hidden');
-      rightLabel.style.display = 'block';
-      divider.style.left = `${state.split}%`;
-      handle.style.left = `${state.split}%`;
-      afterPane.style.clipPath = `inset(0 ${100 - state.split}% 0 0)`;
-    }
-    function attachSplitControls() {
-      const setFromClientX = (clientX) => {
-        const r = viewer.getBoundingClientRect();
-        let pct = ((clientX - r.left) / r.width) * 100;
-        setSplit(pct);
-      };
-      const onDown = (e) => {
-        if (!state.resultUrl) return;
-        state.dragging = true;
-        setFromClientX(e.clientX ?? e.touches?.[0]?.clientX);
-      };
-      const onMove = (e) => {
-        if (!state.dragging) return;
-        setFromClientX(e.clientX ?? e.touches?.[0]?.clientX);
-      };
-      const onUp = () => { state.dragging = false; };
-      handle.addEventListener('mousedown', onDown);
-      divider.addEventListener('mousedown', onDown);
-      viewer.addEventListener('touchstart', onDown, { passive:true });
-      window.addEventListener('mousemove', onMove);
-      window.addEventListener('touchmove', onMove, { passive:true });
-      window.addEventListener('mouseup', onUp);
-      window.addEventListener('touchend', onUp);
-    }
-    attachSplitControls();
-
-    async function fetchJson(url, options) {
-      const res = await fetch(url, options);
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data.detail || data.error || data.title || `HTTP ${res.status}`);
-      return data;
-    }
-    function updateBackdropImage(dataUrl) { $('backdropLayer').style.backgroundImage = dataUrl ? `url("${dataUrl}")` : ''; }
-
-
-    async function downscaleLargeImage(file, maxLongEdge = 1800, maxPixels = 1800000) {
-      const dataUrl = await new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-      });
-
-      const img = new Image();
-      await new Promise((resolve, reject) => {
-        img.onload = resolve;
-        img.onerror = reject;
-        img.src = dataUrl;
-      });
-
-      const longEdge = Math.max(img.width, img.height);
-      const pixels = img.width * img.height;
-
-      if (longEdge <= maxLongEdge && pixels <= maxPixels) {
-        return { file, dataUrl, image: img, resized: false };
-      }
-
-      const ratioEdge = maxLongEdge / longEdge;
-      const ratioPixels = Math.sqrt(maxPixels / pixels);
-      const ratio = Math.min(ratioEdge, ratioPixels, 1);
-
-      const targetW = Math.max(1, Math.round(img.width * ratio));
-      const targetH = Math.max(1, Math.round(img.height * ratio));
-
-      const canvas = document.createElement('canvas');
-      canvas.width = targetW;
-      canvas.height = targetH;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(img, 0, 0, targetW, targetH);
-
-      const mime = file.type && file.type.startsWith('image/') ? file.type : 'image/jpeg';
-      const blob = await new Promise(resolve => canvas.toBlob(resolve, mime, 0.92));
-      const resizedFile = new File([blob], file.name, { type: mime });
-      const resizedDataUrl = canvas.toDataURL(mime, 0.92);
-
-      const resizedImg = new Image();
-      await new Promise((resolve, reject) => {
-        resizedImg.onload = resolve;
-        resizedImg.onerror = reject;
-        resizedImg.src = resizedDataUrl;
-      });
-
-      return {
-        file: resizedFile,
-        dataUrl: resizedDataUrl,
-        image: resizedImg,
-        resized: true,
-        originalWidth: img.width,
-        originalHeight: img.height,
-        targetWidth: targetW,
-        targetHeight: targetH
-      };
-    }
-
-    async function loadImage(file) {
-      hideError();
-      hideStatus();
-      resetResult();
-
-      const prepared = await downscaleLargeImage(file);
-      const img = prepared.image;
-      const dataUrl = prepared.dataUrl;
-
-      state.originalFile = prepared.file;
-      state.originalDataUrl = dataUrl;
-      state.originalImage = img;
-
-      uploadOverlay.classList.add('hidden');
-      $('enhanceBtn').disabled = false;
-      $('origSize').textContent = `${img.width} × ${img.height}`;
-      updateOutputEstimate();
-      drawContain(beforeCanvas, img);
-      updateBackdropImage(dataUrl);
-      $('selectedType').textContent = typeLabel(state.contentType);
-      $('resolvedModel').textContent = modelLabel(state.engine);
-      $('progressModel').textContent = modelLabel(state.engine);
-
-      if (prepared.resized) {
-        showStatus(`圖片過大，已自動縮小為 ${prepared.targetWidth} × ${prepared.targetHeight} 後再進行 ${state.scale}x 增強。`);
-      } else {
-        showStatus(`已載入圖片，將以 ${typeLabel(state.contentType)} + ${modelLabel(state.engine)} 進行 ${state.scale}x 增強。`);
-      }
-    }
-
-    fileInput.addEventListener('change', async (e) => {
-      const file = e.target.files?.[0];
-      if (!file) return;
-      try { await loadImage(file); } catch { showError('讀取圖片失敗，請換一張圖片再試。'); }
-    });
-    ['dragenter','dragover'].forEach(name => viewer.addEventListener(name, (e) => { e.preventDefault(); e.stopPropagation(); }));
-    ['dragleave','drop'].forEach(name => viewer.addEventListener(name, (e) => { e.preventDefault(); e.stopPropagation(); }));
-    viewer.addEventListener('drop', async (e) => {
-      const file = e.dataTransfer?.files?.[0];
-      if (!file) return;
-      try { await loadImage(file); } catch { showError('讀取圖片失敗，請換一張圖片再試。'); }
-    });
-
-    $('reuploadBtn').addEventListener('click', () => resetUploader(true));
-
-    async function startEnhance() {
-      if (!state.originalDataUrl) { showError('請先上傳圖片。'); return; }
-      hideError(); hideStatus(); resetResult();
-      $('enhanceBtn').disabled = true;
-      setProgress(8, '正在套用你選擇的模型策略…');
-      try {
-        const created = await fetchJson('/api/predict', {
-          method:'POST',
-          headers:{'Content-Type':'application/json'},
-          body: JSON.stringify({
-            imageBase64: state.originalDataUrl,
-            scale: state.scale,
-            engine: state.engine,
-            contentType: state.contentType,
-            faceEnhance: state.faceEnhance
-          })
-        });
-        showStatus(`已送出至 ${created.selected_model_label || modelLabel(state.engine)}，開始處理中…`);
-        setProgress(18, '雲端模型處理中…');
-        await pollPrediction(created.id);
-      } catch (err) {
-        hideProgress();
-        $('enhanceBtn').disabled = false;
-        showError(err.message || '建立任務失敗');
-      }
-    }
-    async function pollPrediction(id) {
-      let pct = 18;
-      for (let attempts=0; attempts<120; attempts++) {
-        const data = await fetchJson(`/api/poll?id=${encodeURIComponent(id)}`);
-        if (data.status === 'succeeded') {
-          const output = Array.isArray(data.output) ? data.output[0] : data.output;
-          if (!output) throw new Error('模型沒有回傳結果圖片。');
-          setProgress(100, '處理完成，正在載入結果…');
-          await showResult(output);
-          hideProgress();
-          $('enhanceBtn').disabled = false;
-          showStatus('AI 增強完成，可直接比較前後差異並下載。');
-          return;
-        }
-        if (data.status === 'failed' || data.status === 'canceled') throw new Error(data.error || data.detail || '模型處理失敗');
-        pct = Math.min(92, pct + 6);
-        setProgress(pct, data.status === 'starting' ? '模型啟動中…' : 'AI 正在增強細節…');
-        await new Promise(r => setTimeout(r, 2500));
-      }
-      throw new Error('等待模型回應逾時，請稍後再試。');
-    }
-    async function showResult(url) {
-      state.resultUrl = url;
-      const img = new Image();
-      img.crossOrigin = 'anonymous';
-      await new Promise((resolve, reject) => { img.onload = resolve; img.onerror = reject; img.src = url; });
-      state.resultImage = img;
-      drawContain(afterCanvas, img);
-      setSplit(50);
-      try {
-        const res = await fetch(url);
-        const blob = await res.blob();
-        $('outFileSize').textContent = formatBytes(blob.size);
-      } catch {}
-      downloadDropdown.render();
-    }
-    $('enhanceBtn').addEventListener('click', startEnhance);
-
-    async function downloadResult(format) {
-      const img = new Image();
-      img.crossOrigin = 'anonymous';
-      await new Promise((resolve, reject) => { img.onload = resolve; img.onerror = reject; img.src = state.resultUrl; });
-      const c = document.createElement('canvas');
-      c.width = img.naturalWidth || img.width;
-      c.height = img.naturalHeight || img.height;
-      c.getContext('2d').drawImage(img,0,0);
-      const mime = format === 'jpg' ? 'image/jpeg' : format === 'webp' ? 'image/webp' : 'image/png';
-      const ext = format === 'jpg' ? 'jpg' : format;
-      const blob = await new Promise(resolve => c.toBlob(resolve, mime, format === 'jpg' ? 0.92 : 1));
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
-      link.download = `urban-upscale-${Date.now()}.${ext}`;
-      link.click();
-      setTimeout(() => URL.revokeObjectURL(link.href), 1200);
-    }
-
-    function openLightbox(src) {
-      if (!src) return;
-      $('lightboxImage').src = src;
-      $('lightbox').classList.add('active');
-      document.body.style.overflow = 'hidden';
-    }
-    function closeLightbox() {
-      $('lightbox').classList.remove('active');
-      $('lightboxImage').src = '';
-      document.body.style.overflow = '';
-    }
-    $('lightboxClose').addEventListener('click', closeLightbox);
-    $('lightbox').addEventListener('click', (e) => { if (e.target === $('lightbox')) closeLightbox(); });
-    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeLightbox(); });
-    beforeCanvas.addEventListener('click', () => { if (state.originalDataUrl) openLightbox(state.originalDataUrl); });
-    afterCanvas.addEventListener('click', () => { if (state.resultUrl) openLightbox(state.resultUrl); });
-
-    const mainGradientChip = $('mainGradientChip');
-
-    function hexToRgba(hex, alpha) {
-      const clean = hex.replace('#','');
-      const bigint = parseInt(clean, 16);
-      const r = (bigint >> 16) & 255;
-      const g = (bigint >> 8) & 255;
-      const b = bigint & 255;
-      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-    }
-
-    function pickGradientColor(clientX) {
-      const rect = mainGradientChip.getBoundingClientRect();
-      const x = Math.max(0, Math.min(rect.width, clientX - rect.left));
-      const t = x / rect.width;
-
-      const sample = document.createElement('canvas');
-      sample.width = Math.max(2, Math.round(rect.width));
-      sample.height = 2;
-      const ctx = sample.getContext('2d');
-      const grad = ctx.createLinearGradient(0, 0, sample.width, 0);
-      grad.addColorStop(0.00, '#ff6a88');
-      grad.addColorStop(0.14, '#ffb199');
-      grad.addColorStop(0.28, '#ffd166');
-      grad.addColorStop(0.42, '#9be15d');
-      grad.addColorStop(0.58, '#00c6ff');
-      grad.addColorStop(0.74, '#7f7fd5');
-      grad.addColorStop(0.88, '#c471ed');
-      grad.addColorStop(1.00, '#f64f59');
-      ctx.fillStyle = grad;
-      ctx.fillRect(0, 0, sample.width, sample.height);
-      const px = ctx.getImageData(Math.min(sample.width - 1, Math.max(0, Math.round(t * (sample.width - 1)))), 0, 1, 1).data;
-      const hex = '#' + [px[0], px[1], px[2]].map(v => v.toString(16).padStart(2, '0')).join('');
-
-      mainGradientChip.style.setProperty('--pick-position', `${t * 100}%`);
-      mainGradientChip.style.setProperty('--picked-color', hex);
-
-      state.backdropColor = hex;
-      state.backdropTint = `linear-gradient(90deg, ${hexToRgba(hex, .32)} 0%, rgba(255,255,255,.12) 48%, ${hexToRgba(hex, .18)} 100%)`;
-      applyBackdropTheme();
-      showStatus(`已套用背景主色：${hex}`);
-    }
-
-    mainGradientChip.addEventListener('click', (e) => {
-      pickGradientColor(e.clientX);
-    });
-
-    window.addEventListener('resize', () => {
-      if (state.originalImage) drawContain(beforeCanvas, state.originalImage);
-      if (state.resultImage) { drawContain(afterCanvas, state.resultImage); setSplit(state.split); }
-    });
-
-    (async function init(){
-      $('selectedType').textContent = typeLabel(state.contentType);
-      $('resolvedModel').textContent = modelLabel(state.engine);
-      $('currentScale').textContent = `${state.scale}x`;
-      applyBackdropTheme();
-      try {
-        const health = await fetchJson('/api/health');
-        if (health && health.ok) showStatus('伺服器連線正常，可直接上傳圖片開始使用。');
-      } catch {
-        showError('目前無法連線到後端，請確認伺服器是否已啟動。');
-      }
-    })();
-  </script>
+  if(result.status==="succeeded"){
+    const url=Array.isArray(result.output)?result.output[0]:result.output
+    imgAfter.src=url
+    msg.innerText="完成"
+    done=true
+  }
+ }
+}
+</script>
 </body>
 </html>
